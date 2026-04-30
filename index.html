@@ -1,0 +1,2964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蓍草六爻起卦</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Serif SC', serif;
+  background: #1a0a00;
+  color: #e8d5b0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(180,120,40,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(120,60,10,0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  width: 100%;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+
+header h1 {
+  font-size: 2.2em;
+  font-weight: 900;
+  background: linear-gradient(180deg, #f0d080, #c89830);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3em;
+  margin-bottom: 8px;
+}
+
+header .subtitle {
+  font-size: 0.9em;
+  color: #8a7050;
+  letter-spacing: 0.2em;
+}
+
+.divider {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #8a6a30, transparent);
+  margin: 15px auto;
+}
+
+.hexagram-display {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin: 20px 0;
+  min-height: 280px;
+}
+
+.hexagram-panel {
+  text-align: center;
+}
+
+.hexagram-panel .label {
+  font-size: 0.85em;
+  color: #8a7050;
+  margin-bottom: 10px;
+  letter-spacing: 0.15em;
+}
+
+.hexagram-panel .gua-name {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #f0d080;
+  margin-top: 8px;
+  min-height: 1.6em;
+}
+
+.hexagram-panel .gua-name.changed {
+  color: #d08040;
+}
+
+.yao-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.yao-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.yao-row.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.yao-row .yao-pos {
+  font-size: 0.7em;
+  color: #6a5a40;
+  width: 20px;
+  text-align: right;
+}
+
+.yao-row .yao-liuqin {
+  font-size: 0.6em;
+  color: #a08850;
+  width: 28px;
+  text-align: center;
+}
+
+.yao-row .yao-liuqin.lq-brother { color: #8ab060; }
+.yao-row .yao-liuqin.lq-parent { color: #70a0c0; }
+.yao-row .yao-liuqin.lq-offspring { color: #c0a050; }
+.yao-row .yao-liuqin.lq-wife { color: #c08050; }
+.yao-row .yao-liuqin.lq-official { color: #c06060; }
+
+.yao-symbol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 14px;
+}
+
+.yao-symbol .yang-line {
+  width: 80px;
+  height: 6px;
+  background: #e8d0a0;
+  border-radius: 1px;
+}
+
+.yao-symbol .yin-line {
+  width: 34px;
+  height: 6px;
+  background: #e8d0a0;
+  border-radius: 1px;
+}
+
+.yao-symbol .yang-line.moving,
+.yao-symbol .yin-line.moving {
+  background: #d08040;
+}
+
+.yao-row .yao-type-name {
+  font-size: 0.58em;
+  color: #8a7a60;
+  width: 24px;
+  text-align: center;
+}
+
+.yao-row .yao-type-name.moving {
+  color: #d08040;
+  font-weight: 700;
+}
+
+.yao-row .yao-zhi {
+  font-size: 0.6em;
+  color: #8a7a60;
+  width: 18px;
+  text-align: center;
+}
+
+.yao-row .yao-shi-ying {
+  font-size: 0.55em;
+  padding: 1px 4px;
+  border-radius: 2px;
+  width: 16px;
+  text-align: center;
+}
+
+.yao-row .yao-shi-ying.shi {
+  color: #d0a040;
+  background: rgba(200,150,50,0.15);
+  border: 1px solid rgba(200,150,50,0.3);
+}
+
+.yao-row .yao-shi-ying.ying {
+  color: #70a0c0;
+  background: rgba(100,150,200,0.1);
+  border: 1px solid rgba(100,150,200,0.2);
+}
+
+.yao-row .yao-type {
+  font-size: 0.65em;
+  color: #6a5a40;
+  width: 16px;
+}
+
+.yao-row .yao-type.moving {
+  color: #d08040;
+}
+
+.arrow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 30px;
+}
+
+.arrow-col .arrow {
+  font-size: 1.2em;
+  color: #6a5a40;
+}
+
+.controls {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.btn-divine {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 14px 48px;
+  background: linear-gradient(180deg, #c89830, #8a6020);
+  color: #1a0a00;
+  border: 2px solid #d0a040;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-divine:hover {
+  background: linear-gradient(180deg, #d8a840, #9a7030);
+  box-shadow: 0 0 20px rgba(200,150,50,0.3);
+}
+
+.btn-divine:active {
+  transform: scale(0.97);
+}
+
+.btn-divine:disabled {
+  background: #3a2a10;
+  color: #5a4a30;
+  border-color: #4a3a20;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-reset {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.85em;
+  letter-spacing: 0.15em;
+  padding: 8px 24px;
+  background: transparent;
+  color: #8a7050;
+  border: 1px solid #5a4a30;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+  border-color: #8a7050;
+  color: #c8a860;
+}
+
+.progress {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 0.85em;
+  color: #8a7050;
+  letter-spacing: 0.1em;
+}
+
+.progress .current {
+  color: #f0d080;
+  font-weight: 700;
+}
+
+.info-panel {
+  background: rgba(40,25,10,0.6);
+  border: 1px solid #3a2a15;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 15px 0;
+}
+
+.info-panel h3 {
+  font-size: 0.9em;
+  color: #b89850;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+.info-panel p {
+  font-size: 0.78em;
+  color: #8a7a60;
+  line-height: 1.8;
+}
+
+.prob-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 0.75em;
+}
+
+.prob-table th {
+  color: #b89850;
+  padding: 4px 8px;
+  border-bottom: 1px solid #3a2a15;
+  font-weight: 400;
+}
+
+.prob-table td {
+  color: #8a7a60;
+  padding: 4px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(58,42,21,0.5);
+}
+
+.prob-table td.highlight {
+  color: #d08040;
+}
+
+.animation-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,5,0,0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.animation-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.animation-text {
+  font-size: 1.4em;
+  color: #f0d080;
+  letter-spacing: 0.3em;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.animation-stalks {
+  display: flex;
+  gap: 3px;
+  margin-top: 20px;
+}
+
+.stick {
+  width: 3px;
+  height: 40px;
+  background: #b89850;
+  border-radius: 1px;
+  animation: stalkWave 1.2s ease-in-out infinite;
+}
+
+.stick:nth-child(1) { animation-delay: 0s; }
+.stick:nth-child(2) { animation-delay: 0.1s; }
+.stick:nth-child(3) { animation-delay: 0.2s; }
+.stick:nth-child(4) { animation-delay: 0.3s; }
+.stick:nth-child(5) { animation-delay: 0.4s; }
+.stick:nth-child(6) { animation-delay: 0.5s; }
+.stick:nth-child(7) { animation-delay: 0.6s; }
+
+@keyframes stalkWave {
+  0%, 100% { transform: rotate(-3deg); opacity: 0.4; }
+  50% { transform: rotate(3deg); opacity: 1; }
+}
+
+.result-detail {
+  background: rgba(40,25,10,0.6);
+  border: 1px solid #3a2a15;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 15px 0;
+  display: none;
+}
+
+.result-detail.show {
+  display: block;
+}
+
+.result-detail h3 {
+  font-size: 0.9em;
+  color: #b89850;
+  margin-bottom: 10px;
+  letter-spacing: 0.1em;
+}
+
+.result-yao-list {
+  font-size: 0.8em;
+  line-height: 2;
+}
+
+.result-yao-list .ry-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(58,42,21,0.3);
+}
+
+.result-yao-list .ry-item .ry-pos { color: #8a7a60; min-width: 28px; }
+.result-yao-list .ry-item .ry-liuqin { font-size: 0.85em; min-width: 28px; text-align: center; }
+.result-yao-list .ry-item .ry-liuqin.lq-brother { color: #8ab060; }
+.result-yao-list .ry-item .ry-liuqin.lq-parent { color: #70a0c0; }
+.result-yao-list .ry-item .ry-liuqin.lq-offspring { color: #c0a050; }
+.result-yao-list .ry-item .ry-liuqin.lq-wife { color: #c08050; }
+.result-yao-list .ry-item .ry-liuqin.lq-official { color: #c06060; }
+.result-yao-list .ry-item .ry-zhi { color: #a09070; font-size: 0.85em; min-width: 30px; }
+.result-yao-list .ry-item .ry-type { color: #b89850; }
+.result-yao-list .ry-item .ry-type.moving { color: #d08040; }
+.result-yao-list .ry-item .ry-val { color: #6a5a40; font-size: 0.9em; flex: 1; }
+.result-yao-list .ry-item .ry-shi { color: #d0a040; font-size: 0.75em; padding: 1px 5px; background: rgba(200,150,50,0.15); border: 1px solid rgba(200,150,50,0.3); border-radius: 2px; }
+.result-yao-list .ry-item .ry-ying { color: #70a0c0; font-size: 0.75em; padding: 1px 5px; background: rgba(100,150,200,0.1); border: 1px solid rgba(100,150,200,0.2); border-radius: 2px; }
+
+footer {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 0.7em;
+  color: #4a3a25;
+  letter-spacing: 0.1em;
+}
+
+.topic-section {
+  background: rgba(40,25,10,0.6);
+  border: 1px solid #3a2a15;
+  border-radius: 8px;
+  padding: 24px 20px;
+  margin: 15px 0;
+  transition: all 0.5s ease;
+}
+
+.topic-section.hidden {
+  display: none;
+}
+
+.topic-section h3 {
+  font-size: 1em;
+  color: #b89850;
+  margin-bottom: 6px;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+.topic-section .topic-hint {
+  font-size: 0.75em;
+  color: #6a5a40;
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.topic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.topic-tag {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.85em;
+  padding: 8px 18px;
+  background: rgba(60,40,15,0.6);
+  color: #b89850;
+  border: 1px solid #4a3a20;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.1em;
+}
+
+.topic-tag:hover {
+  background: rgba(80,55,20,0.7);
+  border-color: #8a6a30;
+  color: #e8d0a0;
+}
+
+.topic-tag.selected {
+  background: linear-gradient(180deg, #8a6020, #5a3a10);
+  border-color: #c89830;
+  color: #f0d080;
+  box-shadow: 0 0 12px rgba(200,150,50,0.2);
+}
+
+.topic-custom {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.topic-custom input {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.85em;
+  padding: 8px 16px;
+  background: rgba(30,18,5,0.8);
+  color: #e8d5b0;
+  border: 1px solid #4a3a20;
+  border-radius: 4px;
+  outline: none;
+  width: 200px;
+  letter-spacing: 0.05em;
+  transition: border-color 0.3s ease;
+}
+
+.topic-custom input::placeholder {
+  color: #5a4a30;
+}
+
+.topic-custom input:focus {
+  border-color: #8a6a30;
+}
+
+.btn-confirm-topic {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.85em;
+  padding: 8px 20px;
+  background: linear-gradient(180deg, #8a6020, #5a3a10);
+  color: #e8d0a0;
+  border: 1px solid #8a6a30;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm-topic:hover {
+  background: linear-gradient(180deg, #a07030, #6a4a18);
+}
+
+.btn-confirm-topic:disabled {
+  background: #2a1a08;
+  color: #4a3a20;
+  border-color: #3a2a15;
+  cursor: not-allowed;
+}
+
+.divination-area {
+  transition: all 0.5s ease;
+}
+
+.divination-area.hidden {
+  display: none;
+}
+
+.current-topic {
+  text-align: center;
+  margin: 8px 0 4px;
+  font-size: 0.82em;
+  color: #8a7050;
+  letter-spacing: 0.08em;
+}
+
+.current-topic .topic-label {
+  color: #6a5a40;
+}
+
+.current-topic .topic-value {
+  color: #d0a040;
+  font-weight: 700;
+}
+
+.analysis-section {
+  background: rgba(40,25,10,0.6);
+  border: 1px solid #3a2a15;
+  border-radius: 8px;
+  padding: 24px 20px;
+  margin: 15px 0;
+  display: none;
+  animation: fadeInUp 0.8s ease;
+}
+
+.analysis-section.show {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.analysis-section h3 {
+  font-size: 1em;
+  color: #b89850;
+  margin-bottom: 16px;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+.analysis-block {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(58,42,21,0.4);
+}
+
+.analysis-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.analysis-block .block-title {
+  font-size: 0.88em;
+  color: #d0a040;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-block .block-title .title-icon {
+  font-size: 0.9em;
+}
+
+.analysis-block .block-content {
+  font-size: 0.8em;
+  color: #a89878;
+  line-height: 2;
+  text-align: justify;
+}
+
+.analysis-block .block-content .highlight-text {
+  color: #d0a040;
+  font-weight: 700;
+}
+
+.analysis-block .block-content .fortune-tag {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 10px;
+  font-size: 0.9em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.fortune-daji { background: rgba(180,120,30,0.3); color: #e8c060; border: 1px solid #8a6a20; }
+.fortune-ji { background: rgba(140,100,30,0.25); color: #c8a040; border: 1px solid #6a5020; }
+.fortune-xiaoji { background: rgba(120,90,30,0.2); color: #a89040; border: 1px solid #5a4a20; }
+.fortune-ping { background: rgba(80,70,40,0.2); color: #908060; border: 1px solid #4a4030; }
+.fortune-xiaoxiong { background: rgba(100,50,30,0.2); color: #a07050; border: 1px solid #5a3a25; }
+.fortune-xiong { background: rgba(100,30,20,0.2); color: #b06050; border: 1px solid #5a2a20; }
+.fortune-daxiong { background: rgba(100,20,15,0.25); color: #c05040; border: 1px solid #5a1a15; }
+
+.gua-ci {
+  text-align: center;
+  font-size: 1.1em;
+  color: #e8d0a0;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-bottom: 6px;
+}
+
+.gua-nature {
+  text-align: center;
+  font-size: 0.78em;
+  color: #8a7050;
+  margin-bottom: 14px;
+  letter-spacing: 0.08em;
+}
+
+.history-section {
+  background: rgba(40,25,10,0.6);
+  border: 1px solid #3a2a15;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+.history-section h3 {
+  font-size: 0.95em;
+  color: #b89850;
+  margin-bottom: 12px;
+  letter-spacing: 0.15em;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s ease;
+}
+
+.history-section h3:hover {
+  color: #d0a040;
+}
+
+.history-section h3 .toggle-icon {
+  font-size: 0.7em;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.history-section h3 .toggle-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+.history-list {
+  max-height: 400px;
+  overflow-y: auto;
+  transition: max-height 0.4s ease;
+}
+
+.history-list.collapsed {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(30,18,5,0.5);
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: #5a4a30;
+  border-radius: 2px;
+}
+
+.history-item {
+  background: rgba(30,18,5,0.5);
+  border: 1px solid #3a2a18;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  border-color: #6a5a30;
+  background: rgba(40,25,10,0.6);
+}
+
+.history-item .hi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.history-item .hi-gua {
+  font-size: 0.9em;
+  color: #e8d0a0;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.history-item .hi-gua .hi-changed {
+  color: #d08040;
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
+.history-item .hi-time {
+  font-size: 0.65em;
+  color: #5a4a30;
+}
+
+.history-item .hi-topic {
+  font-size: 0.72em;
+  color: #8a7050;
+}
+
+.history-item .hi-topic .hi-topic-val {
+  color: #b89850;
+}
+
+.history-item .hi-yaos {
+  font-size: 0.65em;
+  color: #6a5a40;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+.history-item .hi-yaos .hi-moving {
+  color: #d08040;
+  font-weight: 700;
+}
+
+.history-empty {
+  text-align: center;
+  font-size: 0.78em;
+  color: #5a4a30;
+  padding: 20px 0;
+  letter-spacing: 0.1em;
+}
+
+.history-actions {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.btn-clear-history {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.72em;
+  padding: 5px 16px;
+  background: transparent;
+  color: #6a4a30;
+  border: 1px solid #3a2a18;
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.3s ease;
+}
+
+.btn-clear-history:hover {
+  border-color: #8a5a30;
+  color: #c88040;
+}
+
+.history-detail-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,5,0,0.9);
+  z-index: 200;
+  display: none;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px 20px;
+  overflow-y: auto;
+}
+
+.history-detail-overlay.show {
+  display: flex;
+}
+
+.history-detail-card {
+  background: #1a0e04;
+  border: 1px solid #3a2a15;
+  border-radius: 10px;
+  max-width: 560px;
+  width: 100%;
+  padding: 24px 20px;
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+}
+
+.history-detail-card .hdc-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.2em;
+  color: #6a5a40;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  font-family: 'Noto Serif SC', serif;
+}
+
+.history-detail-card .hdc-close:hover {
+  color: #d0a040;
+}
+
+.yao-detail-block {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(30,18,5,0.5);
+  border: 1px solid rgba(58,42,21,0.4);
+  border-radius: 6px;
+}
+
+.yao-detail-block .ydb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.yao-detail-block .ydb-pos {
+  font-size: 0.85em;
+  color: #d0a040;
+  font-weight: 700;
+}
+
+.yao-detail-block .ydb-type {
+  font-size: 0.72em;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.ydb-type-yang-moving { background: rgba(200,150,50,0.2); color: #d0a040; border: 1px solid #8a6a20; }
+.ydb-type-yin-moving { background: rgba(180,80,40,0.2); color: #c07040; border: 1px solid #7a3a20; }
+.ydb-type-yang-static { background: rgba(100,90,60,0.2); color: #908060; border: 1px solid #4a4030; }
+.ydb-type-yin-static { background: rgba(80,70,50,0.2); color: #807060; border: 1px solid #3a3525; }
+
+.yao-detail-block .ydb-ci {
+  font-size: 0.82em;
+  color: #c8a860;
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.yao-detail-block .ydb-meaning {
+  font-size: 0.76em;
+  color: #a89878;
+  line-height: 1.9;
+}
+
+.yao-detail-block .ydb-advice {
+  font-size: 0.74em;
+  color: #8a7a60;
+  line-height: 1.8;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(58,42,21,0.3);
+}
+
+.yao-detail-block .ydb-advice .advice-label {
+  color: #b89850;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>蓍草起卦</h1>
+    <div class="divider"></div>
+  <div class="subtitle">大衍之数五十 · 其用四十有九</div>
+  </header>
+
+  <div class="topic-section" id="topicSection">
+    <h3>诚心问事</h3>
+    <div class="topic-hint">心诚则灵 · 一事一占</div>
+    <div class="topic-tags" id="topicTags">
+      <div class="topic-tag" data-topic="财运" onclick="selectTopic(this)">财运</div>
+      <div class="topic-tag" data-topic="事业" onclick="selectTopic(this)">事业</div>
+      <div class="topic-tag" data-topic="姻缘" onclick="selectTopic(this)">姻缘</div>
+      <div class="topic-tag" data-topic="健康" onclick="selectTopic(this)">健康</div>
+      <div class="topic-tag" data-topic="学业" onclick="selectTopic(this)">学业</div>
+      <div class="topic-tag" data-topic="出行" onclick="selectTopic(this)">出行</div>
+      <div class="topic-tag" data-topic="官讼" onclick="selectTopic(this)">官讼</div>
+      <div class="topic-tag" data-topic="家宅" onclick="selectTopic(this)">家宅</div>
+      <div class="topic-tag" data-topic="寻人" onclick="selectTopic(this)">寻人</div>
+      <div class="topic-tag" data-topic="失物" onclick="selectTopic(this)">失物</div>
+    </div>
+    <div class="topic-custom">
+      <input type="text" id="customTopic" placeholder="或输入自定义事由…" maxlength="20" oninput="onCustomInput()">
+      <button class="btn-confirm-topic" id="btnConfirmTopic" onclick="confirmTopic()" disabled>开始起卦</button>
+    </div>
+  </div>
+
+  <div class="divination-area hidden" id="divinationArea">
+    <div class="current-topic" id="currentTopic">
+      <span class="topic-label">所占之事：</span><span class="topic-value" id="topicValue"></span>
+    </div>
+
+  <div class="progress">
+    第 <span class="current" id="yaoNum">一</span> 爻 · 共六爻
+  </div>
+
+  <div class="hexagram-display">
+    <div class="hexagram-panel" id="mainPanel">
+      <div class="label">本 卦</div>
+      <div class="yao-lines" id="mainLines"></div>
+      <div class="gua-name" id="mainName"></div>
+    </div>
+
+    <div class="arrow-col" id="arrowCol" style="display:none;">
+      <div class="arrow">→</div>
+    </div>
+
+    <div class="hexagram-panel" id="changedPanel" style="display:none;">
+      <div class="label">变 卦</div>
+      <div class="yao-lines" id="changedLines"></div>
+      <div class="gua-name changed" id="changedName"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-divine" id="btnDivine" onclick="divineOneYao()">揲蓍求爻</button>
+    <br>
+    <button class="btn-reset" onclick="resetAll()">重新起卦</button>
+  </div>
+
+  <div class="result-detail" id="resultDetail">
+    <h3>爻象详情</h3>
+    <div class="result-yao-list" id="resultYaoList"></div>
+  </div>
+
+  <div class="analysis-section" id="analysisSection">
+    <h3>卦象解析</h3>
+    <div id="analysisContent"></div>
+  </div>
+
+  <div class="info-panel">
+    <h3>蓍草法概率</h3>
+    <table class="prob-table">
+      <tr><th>爻象</th><th>名称</th><th>性质</th><th>概率</th></tr>
+      <tr><td>⚊</td><td>老阳</td><td class="highlight">动爻（阳变阴）</td><td class="highlight">3/16 ≈ 18.75%</td></tr>
+      <tr><td>⚋</td><td>少阴</td><td>静爻（阴不变）</td><td>5/16 ≈ 31.25%</td></tr>
+      <tr><td>⚊</td><td>少阳</td><td>静爻（阳不变）</td><td>5/16 ≈ 31.25%</td></tr>
+      <tr><td>⚋</td><td>老阴</td><td class="highlight">动爻（阴变阳）</td><td class="highlight">3/16 ≈ 18.75%</td></tr>
+    </table>
+    <p style="margin-top:10px;">本程序采用随机数模拟蓍草法的概率分布，每次点击"揲蓍求爻"得一爻，六爻成卦。动爻（老阳、老阴）会变化产生变卦。</p>
+  </div>
+
+  <div class="history-section" id="historySection">
+    <h3 onclick="toggleHistory()">占卜记录 <span class="toggle-icon" id="historyToggle">▼</span></h3>
+    <div class="history-list" id="historyList">
+      <div class="history-empty" id="historyEmpty">尚无占卜记录</div>
+    </div>
+    <div class="history-actions" id="historyActions" style="display:none;">
+      <button class="btn-clear-history" onclick="clearHistory()">清除全部记录</button>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<div class="history-detail-overlay" id="historyDetailOverlay" onclick="closeHistoryDetail(event)">
+  <div class="history-detail-card" id="historyDetailCard"></div>
+</div>
+
+<div class="animation-overlay" id="animOverlay">
+  <div class="animation-text" id="animText">分而为二以象两</div>
+  <div class="animation-stalks">
+    <div class="stick"></div><div class="stick"></div><div class="stick"></div>
+    <div class="stick"></div><div class="stick"></div><div class="stick"></div>
+    <div class="stick"></div>
+  </div>
+</div>
+
+<footer>蓍草六爻 · 大衍筮法概率模拟</footer>
+
+<script>
+var YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+var YAO_NUMS = ['一', '二', '三', '四', '五', '六'];
+
+var GUA8 = {
+  '111': '乾', '000': '坤', '010': '坎', '101': '离',
+  '001': '艮', '011': '巽', '110': '兑', '100': '震'
+};
+
+var PALACE_ELEMENT = { '乾':'金', '兑':'金', '离':'火', '震':'木', '巽':'木', '坎':'水', '艮':'土', '坤':'土' };
+
+var NA_JIA_ZHI = {
+  '乾': { inner:['子','寅','辰'], outer:['午','申','戌'] },
+  '坤': { inner:['未','巳','卯'], outer:['酉','亥','丑'] },
+  '坎': { inner:['寅','辰','午'], outer:['申','戌','子'] },
+  '离': { inner:['卯','丑','亥'], outer:['酉','未','巳'] },
+  '震': { inner:['子','寅','辰'], outer:['午','申','戌'] },
+  '巽': { inner:['丑','亥','酉'], outer:['未','巳','卯'] },
+  '艮': { inner:['辰','午','申'], outer:['戌','子','寅'] },
+  '兑': { inner:['巳','卯','丑'], outer:['亥','酉','未'] }
+};
+
+var NA_JIA_GAN = {
+  '乾': { inner:'甲', outer:'壬' },
+  '坤': { inner:'乙', outer:'癸' },
+  '坎': { inner:'戊', outer:'戊' },
+  '离': { inner:'己', outer:'己' },
+  '震': { inner:'庚', outer:'庚' },
+  '巽': { inner:'辛', outer:'辛' },
+  '艮': { inner:'丙', outer:'丙' },
+  '兑': { inner:'丁', outer:'丁' }
+};
+
+var ZHI_ELEMENT = {
+  '子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火',
+  '午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'
+};
+
+var PURE_CODES = ['111111','110110','101101','100100','011011','010010','001001','000000'];
+var PURE_NAMES = ['乾','兑','离','震','巽','坎','艮','坤'];
+var GENERATION_NAMES = ['本宫','一世','二世','三世','四世','五世','游魂','归魂'];
+var SHI_POS_MAP = [5, 0, 1, 2, 3, 4, 3, 2];
+
+function generatePalaceHexagrams(pureCode) {
+  var hexagrams = [pureCode];
+  var current = pureCode.split('');
+  for (var i = 0; i < 5; i++) {
+    current[i] = current[i] === '1' ? '0' : '1';
+    hexagrams.push(current.join(''));
+  }
+  current[3] = current[3] === '1' ? '0' : '1';
+  hexagrams.push(current.join(''));
+  var original = pureCode.split('');
+  current[0] = original[0];
+  current[1] = original[1];
+  current[2] = original[2];
+  hexagrams.push(current.join(''));
+  return hexagrams;
+}
+
+var PALACE_CACHE = null;
+
+function buildPalaceCache() {
+  if (PALACE_CACHE) return PALACE_CACHE;
+  PALACE_CACHE = {};
+  for (var p = 0; p < PURE_CODES.length; p++) {
+    var hexagrams = generatePalaceHexagrams(PURE_CODES[p]);
+    for (var g = 0; g < hexagrams.length; g++) {
+      PALACE_CACHE[hexagrams[g]] = {
+        palace: PURE_NAMES[p],
+        element: PALACE_ELEMENT[PURE_NAMES[p]],
+        generation: g,
+        generationName: GENERATION_NAMES[g],
+        shiPos: SHI_POS_MAP[g],
+        yingPos: (SHI_POS_MAP[g] + 3) % 6
+      };
+    }
+  }
+  return PALACE_CACHE;
+}
+
+function getPalaceInfo(code) {
+  var cache = buildPalaceCache();
+  return cache[code] || null;
+}
+
+function getLineZhi(code, lineIndex) {
+  var lowerTrigram = GUA8[code.substring(0, 3)];
+  var upperTrigram = GUA8[code.substring(3, 6)];
+  if (lineIndex < 3) {
+    return NA_JIA_ZHI[lowerTrigram].inner[lineIndex];
+  } else {
+    return NA_JIA_ZHI[upperTrigram].outer[lineIndex - 3];
+  }
+}
+
+function getLineGan(code, lineIndex) {
+  var lowerTrigram = GUA8[code.substring(0, 3)];
+  var upperTrigram = GUA8[code.substring(3, 6)];
+  if (lineIndex < 3) {
+    return NA_JIA_GAN[lowerTrigram].inner;
+  } else {
+    return NA_JIA_GAN[upperTrigram].outer;
+  }
+}
+
+function getLineElement(code, lineIndex) {
+  var zhi = getLineZhi(code, lineIndex);
+  return ZHI_ELEMENT[zhi];
+}
+
+function elementGenerates(a, b) {
+  return (a === '木' && b === '火') || (a === '火' && b === '土') ||
+         (a === '土' && b === '金') || (a === '金' && b === '水') ||
+         (a === '水' && b === '木');
+}
+
+function elementOvercomes(a, b) {
+  return (a === '木' && b === '土') || (a === '土' && b === '水') ||
+         (a === '水' && b === '火') || (a === '火' && b === '金') ||
+         (a === '金' && b === '木');
+}
+
+function getSixRelatives(palaceElement, lineElement) {
+  if (palaceElement === lineElement) return '兄弟';
+  if (elementGenerates(palaceElement, lineElement)) return '子孙';
+  if (elementGenerates(lineElement, palaceElement)) return '父母';
+  if (elementOvercomes(palaceElement, lineElement)) return '妻财';
+  if (elementOvercomes(lineElement, palaceElement)) return '官鬼';
+  return '';
+}
+
+function getLiuqinClass(liuqin) {
+  switch(liuqin) {
+    case '兄弟': return 'lq-brother';
+    case '父母': return 'lq-parent';
+    case '子孙': return 'lq-offspring';
+    case '妻财': return 'lq-wife';
+    case '官鬼': return 'lq-official';
+    default: return '';
+  }
+}
+
+var LIUQIN_MEANING = {
+  '兄弟': {keyword:'竞争、阻隔、耗财',desc:'兄弟为同类，主竞争、劫财、阻碍。兄弟爻动，多主破财或争端。问财不利，问事多阻。'},
+  '父母': {keyword:'文书、庇护、辛劳',desc:'父母为生我之物，主文书、契约、长辈、庇护。父母爻动，主辛劳或文书之事。问考学吉，问财则辛苦。'},
+  '子孙': {keyword:'福神、解忧、生财',desc:'子孙为我生之物，主福神、解忧、子嗣、生财。子孙爻动，克官鬼、生妻财，为福神。问病吉，问官不利。'},
+  '妻财': {keyword:'财源、成果、欲望',desc:'妻财为我克之物，主财源、成果、欲望、妻室。妻财爻动，主得财或感情之事。问财吉，问长辈不利。'},
+  '官鬼': {keyword:'官府、疾病、灾祸',desc:'官鬼为克我之物，主官府、疾病、灾祸、盗贼。官鬼爻动，主忧患或官非。问官吉，问病不利。'}
+};
+
+var GUA64 = {
+  '111111': '乾为天',
+  '000000': '坤为地',
+  '100010': '水雷屯',
+  '010001': '山水蒙',
+  '111010': '水天需',
+  '010111': '天水讼',
+  '010000': '地水师',
+  '000010': '水地比',
+  '111011': '风天小畜',
+  '110111': '天泽履',
+  '111000': '地天泰',
+  '000111': '天地否',
+  '101111': '天火同人',
+  '111101': '火天大有',
+  '001000': '地山谦',
+  '000100': '雷地豫',
+  '100110': '泽雷随',
+  '011001': '山风蛊',
+  '110000': '地泽临',
+  '000011': '风地观',
+  '100101': '火雷噬嗑',
+  '101001': '山火贲',
+  '000001': '山地剥',
+  '100000': '地雷复',
+  '100111': '天雷无妄',
+  '111001': '山天大畜',
+  '100001': '山雷颐',
+  '011110': '泽风大过',
+  '010010': '坎为水',
+  '101101': '离为火',
+  '001110': '泽山咸',
+  '011100': '雷风恒',
+  '001111': '天山遁',
+  '111100': '雷天大壮',
+  '000101': '火地晋',
+  '101000': '地火明夷',
+  '101011': '风火家人',
+  '110101': '火泽睽',
+  '001010': '水山蹇',
+  '010100': '雷水解',
+  '110001': '山泽损',
+  '100011': '风雷益',
+  '111110': '泽天夬',
+  '011111': '天风姤',
+  '000110': '泽地萃',
+  '011000': '地风升',
+  '010110': '泽水困',
+  '011010': '水风井',
+  '101110': '泽火革',
+  '011101': '火风鼎',
+  '100100': '震为雷',
+  '001001': '艮为山',
+  '001011': '风山渐',
+  '110100': '雷泽归妹',
+  '101100': '雷火丰',
+  '001101': '火山旅',
+  '011011': '巽为风',
+  '110110': '兑为泽',
+  '010011': '风水涣',
+  '110010': '水泽节',
+  '110011': '风泽中孚',
+  '001100': '雷山小过',
+  '101010': '水火既济',
+  '010101': '火水未济'
+};
+
+var GUA_INFO = {
+  '111111': { ci:'元亨利贞', nature:'刚健不息', element:'金', fortune:'大吉', kw:'创造、领导、进取',
+    desc:'乾为天，纯阳之卦，象征天道运行刚健不息。万物之始，大有作为之象。',
+    topic:{财运:'财源广进，正当求财大有收获，宜大胆投资',事业:'事业亨通，领导力强，宜开创进取',姻缘:'阳刚过盛，需以柔济之，男占得妻贤，女占宜柔顺',健康:'体健气盛，但阳亢易燥，注意劳逸结合',学业:'学业大成，才思敏捷，考试大利',出行:'出行大吉，贵人相助，一路顺风',官讼:'讼事得胜，理直气壮，但不宜纠缠',家宅:'家运昌盛，门庭兴旺，但防刚过易折',寻人:'人在远方，可寻得，宜速往',失物:'失物可寻，在西北方或高处'}},
+  '000000': { ci:'元亨，利牝马之贞', nature:'柔顺承载', element:'土', fortune:'吉', kw:'包容、承载、厚德',
+    desc:'坤为地，纯阴之卦，象征大地承载万物。柔顺守正，厚德载物之象。',
+    topic:{财运:'求财平稳，宜守成不宜冒进，合作有利',事业:'宜辅佐他人，不宜独断，守成为上',姻缘:'柔顺得配，女占大吉，男占宜谦和',健康:'体质偏寒，注意脾胃调养，宜温补',学业:'循序渐进，厚积薄发，不宜急躁',出行:'出行平安，结伴而行，不宜独行',官讼:'讼事不利，宜和解退让',家宅:'家宅安宁，宜修德积善',寻人:'人在近处，可归，宜耐心等待',失物:'失物在西南方或低洼处，可寻'}},
+  '100010': { ci:'元亨利贞，勿用有攸往，利建侯', nature:'艰难初创', element:'水木', fortune:'小吉', kw:'起始、积累、耐心',
+    desc:'水雷屯，万物初生之象。创业维艰，需坚守正道，积蓄力量。',
+    topic:{财运:'求财初期艰难，需耐心积累，不宜急求',事业:'创业之初，困难重重，但前景可期',姻缘:'感情初起，尚需磨合，不宜急进',健康:'小病缠身，需调养体质，渐次好转',学业:'初学艰难，持之以恒终有所成',出行:'出行有阻，宜缓行，不宜急赶',官讼:'讼事纠缠，一时难决，宜忍耐',家宅:'新居初定，尚需整理，渐入佳境',寻人:'人在途中，尚未到达，需等待',失物:'失物难寻，可能被掩埋或藏匿'}},
+  '010001': { ci:'亨，匪我求童蒙，童蒙求我', nature:'蒙昧待启', element:'土水', fortune:'平', kw:'启蒙、学习、求教',
+    desc:'山水蒙，蒙昧不明之象。需虚心求教，以启明智，不可自以为是。',
+    topic:{财运:'求财不明，宜请教有经验之人指引',事业:'业务生疏，需学习积累，不宜冒进',姻缘:'感情不明，需多沟通了解，防受蒙蔽',健康:'病情不明，宜就医检查，不可自诊',学业:'求学良机，虚心受教必有所获',出行:'出行迷茫，宜结伴或有向导',官讼:'讼事不清，宜寻求法律帮助',家宅:'家中有疑，宜开诚布公沟通',寻人:'人被蒙蔽，需循循善诱引导回归',失物:'失物被遮掩，仔细搜寻可找到'}},
+  '111010': { ci:'有孚，光亨，贞吉，利涉大川', nature:'守正待时', element:'水天', fortune:'吉', kw:'等待、诚信、时机',
+    desc:'水天需，需待之时。诚信守正，等待时机成熟，则万事可成。',
+    topic:{财运:'财运将至，需耐心等待时机，不可急切',事业:'时机未到，宜蓄势待发，准备充分',姻缘:'良缘需等，真诚以待，自然水到渠成',健康:'病需调养，不可急求速效，耐心康复',学业:'学问需积累，厚积薄发，考试有利',出行:'出行宜缓，等待良机再动',官讼:'讼事拖延，宜耐心等待判决',家宅:'家运渐佳，需时日方见好转',寻人:'人在远方，需等待消息',失物:'失物需时日方可寻回'}},
+  '010111': { ci:'有孚窒惕，中吉，终凶', nature:'争讼之象', element:'天水', fortune:'凶', kw:'争讼、矛盾、谨慎',
+    desc:'天水讼，争讼之象。有理亦需谨慎，能和则和，争讼终非吉道。',
+    topic:{财运:'求财有争，利益冲突，宜退让求和',事业:'事业有争，与上级或同事不和，宜忍让',姻缘:'感情有争，意见不合，宜沟通化解',健康:'病情反复，医患需沟通，忌争执',学业:'学业有阻，与师友意见不合，宜虚心',出行:'出行不利，防口舌是非',官讼:'讼事不利，虽理直亦难全胜，宜和解',家宅:'家宅不宁，家人争执，宜忍让',寻人:'人因争执而走，宜主动和解',失物:'失物因争执而失，难寻回'}},
+  '010000': { ci:'贞，丈人吉，无咎', nature:'统率行师', element:'地水', fortune:'平', kw:'领导、纪律、团队',
+    desc:'地水师，行师打仗之象。需以纪律约束，有德者率领方可成功。',
+    topic:{财运:'求财需团队协作，有领头人方可获利',事业:'宜服从领导，团队协作，不宜独断',姻缘:'感情需有主见之人引导，不宜随波逐流',健康:'需遵医嘱，规范治疗，不可自行其是',学业:'需良师指导，严于律己，方可有成',出行:'结伴出行，听从领队安排',官讼:'讼事需请好律师，听从专业意见',家宅:'家中需有主事之人，立规矩方安',寻人:'需组织人力寻找，不宜单打独斗',失物:'失物需多人协助寻找，在北方'}},
+  '000010': { ci:'吉，原筮元永贞，无咎', nature:'亲比相辅', element:'水地', fortune:'吉', kw:'合作、亲近、辅助',
+    desc:'水地比，亲密比辅之象。与人亲比合作，诚信相待，则吉。',
+    topic:{财运:'求财宜合作，与人合伙有利，共享收益',事业:'事业宜与人合作，贵人相助，前途光明',姻缘:'感情和合，彼此相亲，良缘可成',健康:'宜与人同调养，相互督促，康复顺利',学业:'学业宜与同窗切磋，互帮互助',出行:'结伴出行大吉，不宜独行',官讼:'讼事宜和解，有中间人调解有利',家宅:'邻里和睦，家宅安宁，宜亲近',寻人:'人在亲友处，可寻得',失物:'失物被他人拾得，可寻回'}},
+  '111011': { ci:'亨，密云不雨，自我西郊', nature:'积小成大', element:'风天', fortune:'小吉', kw:'蓄积、温和、小成',
+    desc:'风天小畜，力量不足，需蓄积以待。以柔蓄刚，积小成大之象。',
+    topic:{财运:'小有财运，不宜大投资，积少成多',事业:'事业小成，尚需积累，不宜冒进',姻缘:'感情渐好，但尚需培养，不宜急定',健康:'小恙缠身，需细心调养，不宜大意',学业:'学业渐进，小有收获，继续努力',出行:'短途出行吉，长途不宜',官讼:'小讼可胜，大事不宜争',家宅:'小有不安，但无大碍，宜修整',寻人:'人在近处，不远行，可寻',失物:'失物在近处，仔细寻找可得'}},
+  '110111': { ci:'履虎尾，不咥人，亨', nature:'谨慎前行', element:'天泽', fortune:'小吉', kw:'谨慎、礼仪、实践',
+    desc:'天泽履，如履虎尾，谨慎而行则亨通。循礼而行，虽危无咎。',
+    topic:{财运:'求财需谨慎，循规蹈矩，不可贪大',事业:'事业有险，但谨慎行事可安然度过',姻缘:'感情需守礼，不宜冒犯，循序渐进',健康:'小心调养，防旧疾复发，注意安全',学业:'考试需细心，不可粗心大意',出行:'出行小心，注意安全，可平安',官讼:'讼事需谨慎应对，不可大意',家宅:'家宅需注意安全，防小意外',寻人:'人在险地，需小心寻找',失物:'失物在危险处，小心取回'}},
+  '111000': { ci:'小往大来，吉亨', nature:'通达安泰', element:'地天', fortune:'大吉', kw:'通达、和谐、太平',
+    desc:'地天泰，天地交泰，万物通达之象。上下和合，大有吉庆。',
+    topic:{财运:'财运亨通，投资有利，求财如意',事业:'事业顺遂，上下同心，前途无量',姻缘:'感情和谐，天作之合，婚姻大吉',健康:'身心康泰，但需保持规律生活',学业:'学业顺遂，考试大利，心想事成',出行:'出行大吉，一路平安顺畅',官讼:'讼事和解，化干戈为玉帛',家宅:'家宅大吉，阖家欢乐，和气生财',寻人:'人平安归来，不日可至',失物:'失物可寻回，在东方或平地'}},
+  '000111': { ci:'否之匪人，不利君子贞', nature:'闭塞不通', element:'天地', fortune:'凶', kw:'闭塞、隔阂、隐忍',
+    desc:'天地否，天地不交，万物不通之象。上下隔阂，需隐忍待变。',
+    topic:{财运:'财运不通，投资不利，宜守不宜攻',事业:'事业受阻，上下不和，宜忍辱负重',姻缘:'感情隔阂，沟通不畅，需耐心化解',健康:'气血不通，需活血化瘀，注意循环',学业:'学业受阻，心不在焉，需调整状态',出行:'出行不利，路途不顺，宜缓行',官讼:'讼事不利，沟通困难，宜退让',家宅:'家宅不和，家人隔阂，宜沟通',寻人:'人不愿归，需耐心等待时机',失物:'失物难寻，被人阻隔'}},
+  '101111': { ci:'同人于野，亨', nature:'和同于人', element:'天火', fortune:'吉', kw:'团结、志同、合作',
+    desc:'天火同人，与人同心之象。志同道合，团结协作，大事可成。',
+    topic:{财运:'求财宜合作，众人拾柴火焰高',事业:'事业得同仁相助，齐心协力可成',姻缘:'感情和谐，志趣相投，良缘可成',健康:'宜与同病者交流调养经验，相互鼓励',学业:'学业宜与同好切磋，共同进步',出行:'结伴出行大吉，志同道合者同行',官讼:'有同仁相助，讼事可解',家宅:'邻里和睦，志同道合，家运兴旺',寻人:'人在朋友处，可寻得',失物:'被志同道合者拾得，可归还'}},
+  '111101': { ci:'元亨', nature:'大有丰收', element:'火天', fortune:'大吉', kw:'丰收、富有、盛大',
+    desc:'火天大有，日丽中天，大有丰收之象。富有盛德，持盈保泰。',
+    topic:{财运:'财运大旺，收获丰厚，但需节俭持家',事业:'事业大成，位高权重，宜谦逊自持',姻缘:'感情富足，条件优越，但防骄纵',健康:'身体康健，但富贵病需防',学业:'学业大成，名列前茅，宜继续精进',出行:'出行大吉，处处逢贵人',官讼:'讼事得胜，理直气壮',家宅:'家宅富足，门庭若市，宜守成',寻人:'人在富贵之处，可寻得',失物:'失物在高处或明亮处，可寻'}},
+  '001000': { ci:'亨，君子有终', nature:'谦逊退让', element:'地山', fortune:'吉', kw:'谦虚、退让、受益',
+    desc:'地山谦，内高外卑，谦逊之象。谦受益，满招损，低调行事终吉。',
+    topic:{财运:'求财不宜张扬，低调获利更丰',事业:'事业宜谦逊，功成不居，反受敬重',姻缘:'感情宜主动示好，谦逊得人心',健康:'宜静养调理，不宜逞强，谦虚养生',学业:'学业有成，虚心求教更上一层',出行:'出行平安，谦和待人处处方便',官讼:'讼事宜退让，和解为上',家宅:'家宅安宁，谦和持家，邻里称颂',寻人:'人自愿归来，不需强求',失物:'失物被人主动归还'}},
+  '000100': { ci:'利建侯行师', nature:'愉悦随顺', element:'雷地', fortune:'吉', kw:'喜悦、随顺、安逸',
+    desc:'雷地豫，愉悦安乐之象。顺势而为，不可贪逸，居安思危。',
+    topic:{财运:'求财顺遂，但不可因安逸而懈怠',事业:'事业顺心，但防安于现状不思进取',姻缘:'感情愉悦，相处融洽，但防生变',健康:'身心愉悦，但不可放纵，注意节制',学业:'学业轻松，但不可懈怠，仍需努力',出行:'出行愉快，一路顺风',官讼:'讼事有转机，宜顺势而为',家宅:'家宅安乐，但需居安思危',寻人:'人心情愉快，不急于归',失物:'失物在娱乐场所，可寻'}},
+  '100110': { ci:'元亨利贞，无咎', nature:'随时而动', element:'泽雷', fortune:'吉', kw:'随顺、变通、从善',
+    desc:'泽雷随，随时变通之象。因时而动，从善如流，不可固执。',
+    topic:{财运:'求财宜随市场变化，灵活应对有利',事业:'事业宜顺势而为，不可逆势强求',姻缘:'感情宜顺其自然，不可强求',健康:'宜遵医嘱随病情调整，灵活应对',学业:'学习方法需灵活调整，不可死板',出行:'出行顺遂，随遇而安',官讼:'讼事宜随机应变，不可固执',家宅:'家宅宜随俗而行，不可特立独行',寻人:'人随他人而行，在人群之中',失物:'失物被他人带走，需追踪'}},
+  '011001': { ci:'元亨，利涉大川', nature:'整治革新', element:'山风', fortune:'平', kw:'整顿、革新、除弊',
+    desc:'山风蛊，败坏之象。事物败坏需整治，拨乱反正，革新除弊。',
+    topic:{财运:'财务有弊，需整顿清理，方可好转',事业:'事业有积弊，需改革创新，除旧布新',姻缘:'感情有问题，需坦诚面对，不可回避',健康:'旧疾需根治，不可头痛医头',学业:'学习方法有误，需纠正调整',出行:'出行有隐患，需排除后方可动身',官讼:'旧案需翻，宜申诉',家宅:'家宅有隐患，需修缮整顿',寻人:'人因旧事而走，需解决根源问题',失物:'失物在旧物堆中，需翻找'}},
+  '110000': { ci:'元亨利贞', nature:'临近有利', element:'地泽', fortune:'吉', kw:'临近、机遇、积极',
+    desc:'地泽临，居高临下，好运将至之象。积极把握机遇，但盛极当思退。',
+    topic:{财运:'财运临近，积极把握，大有收获',事业:'事业上升期，机遇来临，宜积极进取',姻缘:'感情临近突破，主动出击有利',健康:'病情好转，积极治疗可愈',学业:'学业进步，考试临近，宜加紧准备',出行:'出行有利，时机正好',官讼:'讼事有利，宜速决',家宅:'家运上升，好事临近',寻人:'人将归来，已在途中',失物:'失物在附近，即将找到'}},
+  '000011': { ci:'盥而不荐，有孚颙若', nature:'观察审慎', element:'风地', fortune:'平', kw:'观察、审视、教化',
+    desc:'风地观，观察审视之象。以大观小，审时度势，不可轻举妄动。',
+    topic:{财运:'求财宜先观察市场，不可盲目投入',事业:'事业宜先观察形势，谋定而后动',姻缘:'感情宜先观察了解，不可仓促决定',健康:'宜先做全面检查，再定治疗方案',学业:'学业宜观察他人方法，取长补短',出行:'出行宜先了解目的地情况',官讼:'讼事宜先观察对方虚实',家宅:'家宅需仔细观察，有无隐患',寻人:'人需仔细观察线索，方可找到',失物:'失物需仔细搜寻，在隐蔽处'}},
+  '100101': { ci:'亨，利用狱', nature:'明罚敕法', element:'火雷', fortune:'小吉', kw:'决断、明辨、赏罚',
+    desc:'火雷噬嗑，咬合障碍之象。明辨是非，果断处理，赏罚分明。',
+    topic:{财运:'求财有障碍，需果断排除方可获利',事业:'事业有阻碍，需果断处理，不可犹豫',姻缘:'感情有障碍，需坦诚沟通，消除隔阂',健康:'需果断治疗，不可拖延',学业:'学业有难点，需集中攻克',出行:'出行有小碍，排除后可顺利',官讼:'讼事宜果断，有理则胜',家宅:'家宅有小人，需明辨是非',寻人:'人有阻碍，需排除障碍方可找到',失物:'失物被人拿走，需查明追回'}},
+  '101001': { ci:'亨，小利有攸往', nature:'文饰修饰', element:'山火', fortune:'小吉', kw:'修饰、文雅、表面',
+    desc:'山火贲，文饰修饰之象。注重外表修饰，但不可华而不实。',
+    topic:{财运:'求财宜注重形象包装，小有收益',事业:'事业宜注重外在表现，但需有实力支撑',姻缘:'感情宜注重仪式感，但不可只看表面',健康:'注意外在保养，但更需内在调理',学业:'学业宜注重答题规范，卷面整洁',出行:'出行宜注意仪表，给人好印象',官讼:'讼事需注意陈述方式，以理服人',家宅:'家宅宜装饰美化，但不可过度',寻人:'人注重外表，在繁华之处',失物:'失物在装饰品中或包装内'}},
+  '000001': { ci:'不利有攸往', nature:'剥落侵蚀', element:'山地', fortune:'凶', kw:'剥落、衰败、守静',
+    desc:'山地剥，剥落侵蚀之象。阴盛阳衰，不宜妄动，守静待变。',
+    topic:{财运:'财运衰退，不宜投资，宜守成',事业:'事业下滑，不宜冒进，宜稳守',姻缘:'感情消退，需重新审视，不宜强求',健康:'体质下降，需加强调养，防恶化',学业:'学业退步，需反思调整方法',出行:'出行不利，宜静不宜动',官讼:'讼事不利，宜退让',家宅:'家运衰退，需修缮维护',寻人:'人已远去，短期难寻',失物:'失物已被损坏或丢弃，难寻回'}},
+  '100000': { ci:'亨，出入无疾，朋来无咎', nature:'一阳来复', element:'地雷', fortune:'吉', kw:'回复、转机、新生',
+    desc:'地雷复，一阳来复之象。否极泰来，转机出现，积极行动有利。',
+    topic:{财运:'财运转好，新的机会出现，宜把握',事业:'事业转机，新的机遇来临，宜积极',姻缘:'感情复合有望，旧情可续',健康:'病情好转，康复有望，宜积极治疗',学业:'学业回升，重拾信心，进步在望',出行:'出行有利，新的旅程开始',官讼:'讼事转机，宜积极应对',家宅:'家运好转，新的气象出现',寻人:'人有归意，即将回来',失物:'失物有线索，可望寻回'}},
+  '100111': { ci:'元亨利贞，无妄之灾', nature:'无妄守正', element:'天雷', fortune:'平', kw:'真实、意外、守正',
+    desc:'天雷无妄，行正道而遇意外之象。守正不妄动，但需防意外之灾。',
+    topic:{财运:'正当求财有利，但防意外损失',事业:'正当经营有利，但防无妄之灾',姻缘:'真诚相待有利，但防意外变故',健康:'注意意外伤害，防突发疾病',学业:'踏实学习有利，但防考试意外',出行:'出行需防意外，注意安全',官讼:'无理之讼，但防被牵连',家宅:'家宅平安，但防天灾人祸',寻人:'人因意外走失，需紧急寻找',失物:'失物因意外丢失，难预料'}},
+  '111001': { ci:'利贞，不家食吉', nature:'蓄养贤能', element:'山天', fortune:'吉', kw:'积累、蓄养、厚积',
+    desc:'山天大畜，大有蓄积之象。厚积薄发，蓄养贤能，大利远行。',
+    topic:{财运:'财运丰厚，积蓄充足，大利长远投资',事业:'事业根基深厚，宜大展宏图',姻缘:'条件优越，宜找门当户对之人',健康:'体质良好，但需注意饮食节制',学业:'学识渊博，考试大利，宜深造',出行:'远行大吉，学成归来',官讼:'有充足证据，讼事可胜',家宅:'家底殷实，宜投资置业',寻人:'人在学府或大机构中',失物:'失物在储物处，可寻回'}},
+  '100001': { ci:'贞吉，观颐自求口实', nature:'谨慎养生', element:'山雷', fortune:'平', kw:'养生、谨慎、自求',
+    desc:'山雷颐，颐养之象。谨慎养生，自求口实，不可贪求。',
+    topic:{财运:'求财宜谨慎，量入为出，不可贪多',事业:'事业宜稳，不可冒进，自力更生',姻缘:'感情需自省，不可依赖他人',健康:'注意饮食调养，养生为上',学业:'学业需自悟，不可依赖他人',出行:'出行需自备充分，不可依赖他人',官讼:'讼事需自辩，不可全赖他人',家宅:'家宅需自理，不可假手他人',寻人:'人自会归来，不需外求',失物:'失物需自己寻找，他人难帮'}},
+  '011110': { ci:'栋桡，利有攸往，亨', nature:'过度则折', element:'泽风', fortune:'凶', kw:'过载、压力、折断',
+    desc:'泽风大过，大过越常之象。压力过大则折，需量力而行，不可逞强。',
+    topic:{财运:'投资过度危险，需量力而行',事业:'压力过大，需减压，不可硬撑',姻缘:'感情负担过重，需减轻压力',健康:'身体过劳，需休息，防过劳成疾',学业:'学业压力过大，需调整节奏',出行:'出行不宜负重，轻装简行',官讼:'讼事过重，需减轻负担',家宅:'房屋有隐患，需加固',寻人:'人因压力出走，需安抚',失物:'失物因过重而遗落'}},
+  '010010': { ci:'习坎，有孚维心亨', nature:'险中求通', element:'水', fortune:'凶', kw:'险阻、坎坷、诚信',
+    desc:'坎为水，重险之象。身处险境，以诚信守正，终可脱险。',
+    topic:{财运:'求财多阻，需诚信经营，终可获利',事业:'事业坎坷，需坚守正道，终见光明',姻缘:'感情多波折，需真诚以待',健康:'病情较重，需坚定信心，配合治疗',学业:'学业困难，需刻苦钻研，不可放弃',出行:'出行有险，需小心谨慎',官讼:'讼事不利，需诚信应对',家宅:'家宅有险，需排查隐患',寻人:'人在险地，需紧急救援',失物:'失物落入水中或低洼处，难寻'}},
+  '101101': { ci:'利贞，亨，畜牝牛吉', nature:'光明附丽', element:'火', fortune:'吉', kw:'光明、依附、文明',
+    desc:'离为火，光明附丽之象。依附正道，光明磊落，前途明亮。',
+    topic:{财运:'求财光明正大，文化教育行业有利',事业:'事业光明，宜从事文化教育科技',姻缘:'感情热烈，但需依附正道，防灼伤',健康:'注意心脏眼睛，防上火发炎',学业:'学业光明，考试大利，文采斐然',出行:'出行向南有利，注意防火',官讼:'讼事明辨，有理可胜',家宅:'家宅明亮，宜向南',寻人:'人在南方或明亮处',失物:'失物在南边或火炉旁'}},
+  '001110': { ci:'亨，利贞，取女吉', nature:'感应相通', element:'泽山', fortune:'吉', kw:'感应、沟通、和合',
+    desc:'泽山咸，感应相通之象。心气感应，沟通无碍，和合之象。',
+    topic:{财运:'求财有感应，把握市场脉搏有利',事业:'事业有贵人感应，合作顺利',姻缘:'感情感应强烈，一见钟情之象，大吉',健康:'注意心脏神经，感应敏感',学业:'学业有灵感，悟性高',出行:'出行有感应，随缘而动',官讼:'讼事有调解人，感应双方',家宅:'家宅和睦，心灵相通',寻人:'人有感应，会主动联系',失物:'失物有线索感应，可寻回'}},
+  '011100': { ci:'亨，无咎，利贞', nature:'恒久不变', element:'雷风', fortune:'吉', kw:'恒心、持久、守常',
+    desc:'雷风恒，恒久不变之象。持之以恒，守常不变，终成大业。',
+    topic:{财运:'求财需持久，长期投资有利',事业:'事业需坚持，持之以恒必有所成',姻缘:'感情需恒心，长相厮守为上',健康:'养生需持之以恒，不可三天打鱼',学业:'学业需恒心，日积月累方成',出行:'出行按计划进行，不宜变更',官讼:'讼事持久，需耐心应对',家宅:'家宅安稳，宜守常',寻人:'人已安定，不会远行',失物:'失物在常去之处'}},
+  '001111': { ci:'亨，小利贞', nature:'退避隐忍', element:'天山', fortune:'平', kw:'退避、隐忍、远离',
+    desc:'天山遁，退避隐忍之象。君子远小人，以退为进，韬光养晦。',
+    topic:{财运:'求财宜退，不可贪恋，见好就收',事业:'事业宜退，远离是非，韬光养晦',姻缘:'感情宜退，不可强求，缘分未到',健康:'宜休养退静，远离喧嚣',学业:'学业宜退而反思，调整方向',出行:'出行不宜，宜退守',官讼:'讼事宜退，和解为上',家宅:'家宅宜远离是非之人',寻人:'人有意躲避，不宜强寻',失物:'失物被人藏匿，难寻'}},
+  '111100': { ci:'利贞', nature:'壮盛有力', element:'雷天', fortune:'吉', kw:'壮盛、力量、进取',
+    desc:'雷天大壮，壮盛有力之象。阳气壮盛，宜守正用壮，不可逞强。',
+    topic:{财运:'财运壮盛，但不可贪多，守正有利',事业:'事业强盛，宜守正道，不可蛮干',姻缘:'感情热烈，但防过于强势',健康:'身体壮健，但防过犹不及',学业:'学业进步快，但需谦虚',出行:'出行有力，但防冲动',官讼:'讼事有力，但不可仗势欺人',家宅:'家运壮盛，宜守成',寻人:'人在强壮有力之人处',失物:'失物被有力者拿走'}},
+  '000101': { ci:'康侯用锡马蕃庶', nature:'晋升明进', element:'火地', fortune:'吉', kw:'晋升、进步、光明',
+    desc:'火地晋，光明出地之象。如日晋升，前途光明，宜积极进取。',
+    topic:{财运:'财运上升，收入增加，前景光明',事业:'事业晋升，被上级赏识，前途无量',姻缘:'感情进步，关系升级，宜积极',健康:'病情好转，康复在望',学业:'学业进步，成绩提升，考试有利',出行:'出行顺利，步步高升',官讼:'讼事有利，判决公正',家宅:'家运上升，光明到来',寻人:'人已上路，正向回走',失物:'失物在上方或明亮处'}},
+  '101000': { ci:'利艰贞', nature:'明入地中', element:'地火', fortune:'凶', kw:'黑暗、隐忍、守正',
+    desc:'地火明夷，光明受伤之象。明入地中，需隐忍守正，韬光养晦。',
+    topic:{财运:'财运暗淡，不宜投资，宜隐忍',事业:'事业受挫，宜低调，韬光养晦',姻缘:'感情受创，需时间疗伤，不宜急',健康:'注意内脏暗疾，需详细检查',学业:'学业受挫，需坚持，不可放弃',出行:'出行不利，防暗算',官讼:'讼事不利，有暗箱操作',家宅:'家宅阴暗，需增光',寻人:'人隐藏不出，需耐心',失物:'失物在暗处，需照明寻找'}},
+  '101011': { ci:'利女贞', nature:'家人内治', element:'风火', fortune:'吉', kw:'家庭、内务、和睦',
+    desc:'风火家人，治家之象。家人内治，各安其位，家和万事兴。',
+    topic:{财运:'求财宜从家庭产业入手，家政有利',事业:'事业宜内部管理，团队建设有利',姻缘:'感情如家人般亲密，婚姻大吉',健康:'注意家庭遗传病，家人互相关照',学业:'学业宜家教辅导，家庭支持',出行:'家人同行大吉',官讼:'家人之事，宜内部和解',家宅:'家宅大吉，家和万事兴',寻人:'人在家人处，可寻得',失物:'失物在家中，仔细寻找'}},
+  '110101': { ci:'小事吉', nature:'乖异背离', element:'火泽', fortune:'平', kw:'分离、差异、求同',
+    desc:'火泽睽，乖异背离之象。事有分歧，求同存异，小事可成。',
+    topic:{财运:'求财有分歧，宜求同存异，小有收益',事业:'事业有分歧，需沟通协调，小事可成',姻缘:'感情有分歧，需互相理解，防分离',健康:'身心不调，需综合调理',学业:'学业有偏科，需平衡发展',出行:'出行有分歧，宜统一意见再行',官讼:'讼事分歧大，难和解',家宅:'家人意见不一，需沟通',寻人:'人因分歧而走，需和解',失物:'失物在异处，需变换方向寻找'}},
+  '001010': { ci:'利西南，不利东北', nature:'艰难险阻', element:'水山', fortune:'凶', kw:'困难、险阻、等待',
+    desc:'水山蹇，行路艰难之象。前路险阻，宜退守西南，不宜东北强行。',
+    topic:{财运:'求财艰难，宜守不宜攻，退保为上',事业:'事业受阻，宜退守，不宜冒进',姻缘:'感情受阻，需耐心等待，不宜强求',健康:'病情缠绵，需耐心治疗，不可急躁',学业:'学业困难，需寻求帮助',出行:'出行不利，尤其东北方',官讼:'讼事艰难，宜退让',家宅:'家宅有阻碍，需绕行',寻人:'人在险阻之处，需等待',失物:'失物在山地或高处，难寻'}},
+  '010100': { ci:'利西南', nature:'解除困难', element:'雷水', fortune:'吉', kw:'解除、缓解、释然',
+    desc:'雷水解，解除困难之象。险难解散，百事释然，宜速行动。',
+    topic:{财运:'财运解冻，困难解除，求财有利',事业:'事业解困，障碍消除，宜速行动',姻缘:'感情解开心结，误会消除',健康:'病情缓解，康复加速',学业:'学业解困，难题攻克',出行:'出行大吉，道路畅通',官讼:'讼事和解，纠纷解除',家宅:'家宅解困，恢复安宁',寻人:'人已脱困，即将归来',失物:'失物在解冻或松散之处'}},
+  '110001': { ci:'有孚，元吉，无咎', nature:'减损奉上', element:'山泽', fortune:'平', kw:'减损、牺牲、诚信',
+    desc:'山泽损，减损之象。损下益上，先损后益，诚信为本。',
+    topic:{财运:'求财需先投入，先损后益，不可吝啬',事业:'事业需付出代价，但终有回报',姻缘:'感情需付出，不可只索取',健康:'需减少不良习惯，损之有益',学业:'学业需减少娱乐，专心致志',出行:'出行需节俭，轻装简行',官讼:'讼事需让步，退一步海阔天空',家宅:'家宅需减省开支，量入为出',寻人:'人因损失而走，需补偿',失物:'失物已损坏，难以原样寻回'}},
+  '100011': { ci:'利有攸往，利涉大川', nature:'增益进取', element:'风雷', fortune:'大吉', kw:'增益、进取、大有',
+    desc:'风雷益，增益之象。损上益下，天施地生，大有增益。',
+    topic:{财运:'财运大增，投资有利，收益丰厚',事业:'事业增益，贵人相助，前途无量',姻缘:'感情增益，彼此扶持，大吉',健康:'身体好转，精力充沛',学业:'学业大进，成绩飞跃',出行:'出行大吉，一路增益',官讼:'讼事有利，判决公正',家宅:'家运增益，喜事临门',寻人:'人已获益，愿意归来',失物:'失物被人送回，或有补偿'}},
+  '111110': { ci:'扬于王庭', nature:'决断去除', element:'泽天', fortune:'吉', kw:'决断、去除、果断',
+    desc:'泽天夬，决断之象。阳决阴，君子决小人，需果断行事。',
+    topic:{财运:'求财需果断决策，犹豫则失',事业:'事业需果断处理问题，去除障碍',姻缘:'感情需果断，不可拖泥带水',健康:'需果断治疗，去除病灶',学业:'学业需果断攻克难点',出行:'出行需果断，不可犹豫',官讼:'讼事需果断，一决胜负',家宅:'家宅需果断处理隐患',寻人:'人需果断寻找，不可拖延',失物:'失物需果断追查'}},
+  '011111': { ci:'女壮，勿用取女', nature:'偶然相遇', element:'天风', fortune:'平', kw:'相遇、偶然、防备',
+    desc:'天风姤，偶然相遇之象。不期而遇，需明辨是非，防不正之合。',
+    topic:{财运:'求财有意外机会，但需辨别真伪',事业:'事业有偶然机遇，需谨慎把握',姻缘:'有意外邂逅，但需防非正之缘',健康:'注意突发疾病，防意外',学业:'学业有意外收获，但不可依赖',出行:'出行有偶遇，防受骗',官讼:'讼事有意外证人，需辨别',家宅:'有陌生人来访，需警惕',寻人:'人与陌生人在一起',失物:'失物被陌生人拾得'}},
+  '000110': { ci:'亨，王假有庙', nature:'聚集汇合', element:'泽地', fortune:'吉', kw:'聚集、汇合、团结',
+    desc:'泽地萃，聚集之象。万物汇聚，众人同心，大利祭祀聚会。',
+    topic:{财运:'求财宜合伙，众人聚集财力大',事业:'事业宜团队协作，人才聚集有利',姻缘:'感情有聚会之缘，社交场合遇佳偶',健康:'宜聚众锻炼，相互督促',学业:'学业宜集体学习，互相促进',出行:'结伴出行大吉，聚会有利',官讼:'讼事有人聚助，有利',家宅:'家宅宜聚会，人气旺盛',寻人:'人在人群聚集处',失物:'失物在聚会场所'}},
+  '011000': { ci:'元亨，用见大人', nature:'上升进取', element:'地风', fortune:'吉', kw:'上升、进取、积小',
+    desc:'地风升，上升之象。积小成大，步步上升，宜见大人求发展。',
+    topic:{财运:'财运上升，循序渐进，积少成多',事业:'事业上升，宜见贵人，求发展',姻缘:'感情升温，逐步深入，大吉',健康:'病情好转，逐步康复',学业:'学业上升，步步高升',出行:'出行向上，宜往大城市',官讼:'讼事上升，宜上诉',家宅:'家运上升，宜扩建',寻人:'人已向上发展，在上方',失物:'失物在高处，向上寻找'}},
+  '010110': { ci:'亨，贞大人吉，无咎', nature:'困境求通', element:'泽水', fortune:'平', kw:'困顿、坚守、待时',
+    desc:'泽水困，困顿之象。身处困境，需坚守正道，困中求通。',
+    topic:{财运:'求财被困，资金周转困难，需坚持',事业:'事业受困，暂无出路，需守正待时',姻缘:'感情受困，外界压力，需坚守',健康:'病情困顿，需坚持治疗',学业:'学业困难，需坚持不放弃',出行:'出行受阻，被困途中',官讼:'讼事困顿，难以脱身',家宅:'家宅困窘，需节俭度日',寻人:'人被困住，需救援',失物:'失物被困住，难以取出'}},
+  '011010': { ci:'改邑不改井', nature:'养民不穷', element:'水风', fortune:'平', kw:'滋养、不变、服务',
+    desc:'水风井，井养万民之象。井水不竭，养人不穷，宜守常服务。',
+    topic:{财运:'求财稳定，如井水不断，细水长流',事业:'事业稳定，服务他人，不可变改',姻缘:'感情稳定，如井水长流，平淡而真',健康:'需持续调养，如井水滋养',学业:'学业需持续努力，不可中断',出行:'出行平稳，无大变化',官讼:'讼事不变，维持原判',家宅:'家宅安稳，不宜搬迁',寻人:'人在原地未动',失物:'失物在井边或水源处'}},
+  '101110': { ci:'已日乃孚，元亨利贞', nature:'变革更新', element:'泽火', fortune:'吉', kw:'变革、更新、除旧',
+    desc:'泽火革，变革之象。除旧布新，顺天应人，变革有利。',
+    topic:{财运:'求财需变革思路，创新方法有利',事业:'事业需改革创新，除旧布新',姻缘:'感情需变革相处方式，焕然一新',健康:'需改变治疗方案，革新方法',学业:'学业需改变方法，创新思路',出行:'出行宜走新路，不宜旧路',官讼:'讼事需翻案，变革有利',家宅:'家宅需翻新，革故鼎新',寻人:'人已改变行踪，需新线索',失物:'失物已被改造，难原样寻回'}},
+  '011101': { ci:'元吉，亨', nature:'鼎新立制', element:'火风', fortune:'大吉', kw:'鼎新、建制、养贤',
+    desc:'火风鼎，鼎新之象。革故鼎新，建立制度，养贤纳士，大吉之卦。',
+    topic:{财运:'财运鼎盛，新财源开辟，大利',事业:'事业鼎新，新制度建立，前途光明',姻缘:'感情新篇，良缘天成，婚姻大吉',健康:'体质更新，焕然一新，康健',学业:'学业创新，独树一帜，考试大利',出行:'出行大吉，新路线有利',官讼:'讼事重审，有利翻案',家宅:'家宅焕新，乔迁之喜',寻人:'人已到新地方，有消息',失物:'失物在新物中，可辨别'}},
+  '100100': { ci:'亨，震来虩虩，笑言哑哑', nature:'震动惊惧', element:'雷', fortune:'平', kw:'震动、惊惧、反思',
+    desc:'震为雷，震动之象。雷声惊惧，但能恐惧修省，终获福泽。',
+    topic:{财运:'求财有惊，但终无损失，虚惊一场',事业:'事业有变动，需冷静应对',姻缘:'感情有波折，但可化解',健康:'注意突发疾病，防惊吓',学业:'考试有压力，但成绩尚可',出行:'出行有惊，但无险',官讼:'讼事有变，需冷静',家宅:'家宅有震动，防自然灾害',寻人:'人受惊而走，需安抚',失物:'失物因震动而移位'}},
+  '001001': { ci:'艮其背，不获其身', nature:'止息静止', element:'山', fortune:'平', kw:'止息、静止、安守',
+    desc:'艮为山，止息之象。当止则止，不可妄动，安守本分为上。',
+    topic:{财运:'求财宜止，不可贪求，安守为上',事业:'事业宜止，不宜冒进，守成为上',姻缘:'感情宜止，不可强求，随缘为上',健康:'需静养休息，不可劳累',学业:'学业需停下来消化吸收',出行:'出行不宜，宜止步',官讼:'讼事宜止，不可再争',家宅:'家宅宜静，不宜大兴土木',寻人:'人已停下，在某处不动',失物:'失物在静止不动之处'}},
+  '001011': { ci:'女归吉，利贞', nature:'渐进有序', element:'风山', fortune:'吉', kw:'渐进、有序、礼仪',
+    desc:'风山渐，渐进之象。循序渐进，不可急躁，如鸿渐于陆，有序而行。',
+    topic:{财运:'求财渐进，逐步积累，不可急求',事业:'事业渐进，步步为营，稳扎稳打',姻缘:'感情渐进，按礼而行，婚姻大吉',健康:'病情渐好，需循序渐进调养',学业:'学业渐进，日积月累，终有所成',出行:'出行渐进，中途有停，终达目的',官讼:'讼事渐进，需耐心等待',家宅:'家宅渐好，逐步改善',寻人:'人渐行渐远，但有归期',失物:'失物渐远，但可追踪'}},
+  '110100': { ci:'征凶，无攸利', nature:'行止失当', element:'雷泽', fortune:'凶', kw:'不当、失序、谨慎',
+    desc:'雷泽归妹，行止失当之象。时机不当，行事不正，需谨慎。',
+    topic:{财运:'求财时机不当，不宜投资',事业:'事业举措失当，需重新审视',姻缘:'感情仓促行事不利，需慎重',健康:'治疗不当，需调整方案',学业:'学习方法不当，需纠正',出行:'出行时机不当，宜推迟',官讼:'讼事举措失当，不利',家宅:'家事处理不当，需纠正',寻人:'人行事不当而走，需引导',失物:'失物因处置不当而丢失'}},
+  '101100': { ci:'亨，王假之，勿忧', nature:'丰盛盈满', element:'雷火', fortune:'大吉', kw:'丰盛、盈满、光明',
+    desc:'雷火丰，丰盛之象。日中则昃，月盈则亏，丰盛之时当思退。',
+    topic:{财运:'财运丰厚，丰收在望，但需节俭',事业:'事业鼎盛，如日中天，但防盛极',姻缘:'感情丰盛，但防过于张扬',健康:'身体丰健，但防富贵病',学业:'学业丰收，成绩优异',出行:'出行丰盛，一路享受',官讼:'讼事有利，但不宜过分',家宅:'家宅丰足，宜守成',寻人:'人在丰盛之处，可寻',失物:'失物在丰盛之处，可寻回'}},
+  '001101': { ci:'小亨，旅贞吉', nature:'旅途漂泊', element:'火山', fortune:'平', kw:'旅途、漂泊、谨慎',
+    desc:'火山旅，旅途之象。客居他乡，需谨慎自守，不可大作。',
+    topic:{财运:'求财如旅途，宜小不宜大，流动有利',事业:'事业如旅途，需谨慎行事，不宜安顿',姻缘:'感情如旅途，漂泊不定，需寻归宿',健康:'注意旅途劳顿，水土不服',学业:'学业如旅途，需不断前行',出行:'出行在外，需小心谨慎',官讼:'讼事如旅，在外不利',家宅:'家宅不安，如旅途漂泊',寻人:'人在旅途，在外漂泊',失物:'失物在旅途中，难寻回'}},
+  '011011': { ci:'小亨，利有攸往', nature:'柔顺深入', element:'风', fortune:'小吉', kw:'柔顺、深入、谦逊',
+    desc:'巽为风，柔顺深入之象。以柔顺之德深入人心，谦逊有利。',
+    topic:{财运:'求财宜柔和，深入市场，小有收益',事业:'事业宜谦逊，深入基层，有利',姻缘:'感情宜柔顺，深入对方内心',健康:'需温和调理，深入治本',学业:'学业宜深入钻研，不可浅尝',出行:'出行顺利，如风行无阻',官讼:'讼事宜柔和，不宜强硬',家宅:'家宅宜通风，空气流通',寻人:'人随风而行，在流动之处',失物:'失物被风吹走，在风口处'}},
+  '110110': { ci:'亨，利贞', nature:'喜悦和乐', element:'泽', fortune:'吉', kw:'喜悦、和乐、交流',
+    desc:'兑为泽，喜悦之象。和乐喜悦，以诚相待，交流有利。',
+    topic:{财运:'求财喜悦，和气生财，交流有利',事业:'事业和乐，人际和谐，合作有利',姻缘:'感情喜悦，两情相悦，大吉',健康:'心情愉悦，有利康复',学业:'学业快乐，兴趣浓厚',出行:'出行愉快，结伴同游',官讼:'讼事和解，皆大欢喜',家宅:'家宅和乐，欢声笑语',寻人:'人在欢乐之处，心情好',失物:'失物在娱乐场所'}},
+  '010011': { ci:'亨，王假有庙', nature:'涣散离散', element:'风水', fortune:'平', kw:'涣散、离散、聚合',
+    desc:'风水涣，涣散之象。人心涣散，需以诚信聚合，化散为聚。',
+    topic:{财运:'财运涣散，需集中资金，不可分散',事业:'团队涣散，需凝聚人心',姻缘:'感情有离散之象，需用心维系',健康:'精神涣散，需集中注意力调养',学业:'注意力涣散，需集中精力',出行:'出行分散，需统一行动',官讼:'讼事涣散，需集中证据',家宅:'家人涣散，需团聚',寻人:'人已涣散，需聚合线索',失物:'失物散落各处，需逐一寻找'}},
+  '110010': { ci:'亨，苦节不可贞', nature:'节制适度', element:'水泽', fortune:'平', kw:'节制、适度、守规',
+    desc:'水泽节，节制之象。当节则节，不可过度，苦节不可贞。',
+    topic:{财运:'求财需节制，量入为出，不可过度',事业:'事业需节制，不可冒进，守规有利',姻缘:'感情需节制，不可放纵，适度为上',健康:'需节制饮食，适度运动',学业:'学业需节制娱乐，专心为主',出行:'出行需节俭，不可铺张',官讼:'讼事需节制，不可过分',家宅:'家宅需节用，不可浪费',寻人:'人因受节制而走，需放宽',失物:'失物在受限之处'}},
+  '110011': { ci:'豚鱼吉，利涉大川', nature:'诚信感化', element:'风泽', fortune:'吉', kw:'诚信、感化、信任',
+    desc:'风泽中孚，诚信之象。以诚信感化万物，豚鱼亦吉，大利远行。',
+    topic:{财运:'求财以诚信为本，信用经营大利',事业:'事业以诚信立身，信任合作有利',姻缘:'感情以诚信相待，真心换真心',健康:'需信任医生，配合治疗',学业:'学业以诚信考试，真实水平',出行:'出行以诚信待人，处处方便',官讼:'讼事以诚信为本，有理有据',家宅:'家宅以诚信持家，邻里信赖',寻人:'人因信任而归',失物:'失物因诚信而归还'}},
+  '001100': { ci:'亨，利贞，可小事', nature:'小有过越', element:'雷山', fortune:'平', kw:'小过、适度、谦卑',
+    desc:'雷山小过，小有过越之象。小事可过，大事不可，宜下不宜上。',
+    topic:{财运:'求财小有过头，需收敛，小有收益',事业:'事业小有越权，需守本分',姻缘:'感情小有过失，需道歉弥补',健康:'小有不适，需及时调理',学业:'学业小有偏差，需纠正',出行:'出行小有延误，无大碍',官讼:'讼事小有不利，需退让',家宅:'家宅小有不安，需调整',寻人:'人小有偏离，不远',失物:'失物在附近，稍有偏移'}},
+  '101010': { ci:'亨小利贞，初吉终乱', nature:'既济将变', element:'水火', fortune:'吉', kw:'成功、守成、防变',
+    desc:'水火既济，万事已成之象。功成业就，但需防微杜渐，守成为上。',
+    topic:{财运:'财运已成，收获在望，但需守成',事业:'事业已成，功成名就，但防衰退',姻缘:'感情已成，婚姻美满，但需经营',健康:'疾病已愈，但需防复发',学业:'学业已成，考试通过，但需精进',出行:'出行顺利到达，但需防回程',官讼:'讼事已决，胜诉，但防翻案',家宅:'家宅已成，安居乐业，但需维护',寻人:'人已找到，但需防再走',失物:'失物已找到，但需防再失'}},
+  '010101': { ci:'亨，小狐汔济', nature:'未竟将成', element:'火水', fortune:'平', kw:'未成、将成、坚持',
+    desc:'火水未济，万事未成之象。功败垂成，需坚持到底，不可半途而废。',
+    topic:{财运:'求财未成，需坚持，即将成功',事业:'事业未成，需努力，曙光在前',姻缘:'感情未定，需耐心，即将明朗',健康:'疾病未愈，需坚持治疗，将愈',学业:'学业未成，需加把劲，即将突破',出行:'出行未达，需继续前行',官讼:'讼事未决，需坚持，有利',家宅:'家宅未安，需继续努力',寻人:'人未归，但已在途中',失物:'失物未找到，但有望寻回'}}
+};
+
+var FORTUNE_CLASS = {
+  '大吉':'fortune-daji','吉':'fortune-ji','小吉':'fortune-xiaoji',
+  '平':'fortune-ping','小凶':'fortune-xiaoxiong','凶':'fortune-xiong','大凶':'fortune-daxiong'
+};
+
+var YAO_MEANING = [
+  {pos:'初爻',meaning:'事物根基与起始，代表事情的开端和基础条件',detail:'初爻为卦之根本，如树木之根、建筑之基。初爻动，则根基动摇，事有变源。初爻居下，象征事情尚未显露，变化暗藏于萌芽之中。若问事业，初爻动代表起步阶段有变；若问感情，代表初识阶段有波折；若问健康，代表病根初现。'},
+  {pos:'二爻',meaning:'内在发展，代表事情的内在动力和潜在趋势',detail:'二爻居内卦之中，如人之内心、事之内因。二爻动，则内在力量发生变化，事情的发展动力有所转变。二爻得中，往往代表正当合理的变化。若问事业，代表内部管理或团队有调整；若问感情，代表内心感受有变化；若问健康，代表内在机能需关注。'},
+  {pos:'三爻',meaning:'关键转折，代表事情发展中的变化节点',detail:'三爻居内卦之上、内外卦之交，是承上启下的关键位置。三爻多凶，因处变革之际，进退两难。三爻动，往往预示事情到了关键转折点，需审时度势、谨慎抉择。若问事业，代表升迁或转岗之机；若问感情，代表关系面临考验；若问健康，代表病情可能转重或转轻。'},
+  {pos:'四爻',meaning:'外在表现，代表事情在外的显现和影响',detail:'四爻居外卦之下，如人之行为、事之外显。四爻近君（五爻），处于承上启下的位置，需谨慎行事。四爻动，代表外在环境或表现发生变化，事情的影响力向外扩散。若问事业，代表外部环境或上级有变动；若问感情，代表关系公开化或受外界影响；若问健康，代表症状外显。'},
+  {pos:'五爻',meaning:'核心成就，代表事情的主要结果和关键人物',detail:'五爻为君位，一卦之主，如国之君、事之主。五爻得中得正，为最佳之位。五爻动，则事情的核心和关键人物发生变化，影响最为重大。若问事业，代表领导层或核心决策有变；若问感情，代表关系中的主导方有变化；若问健康，代表关键器官或核心问题。五爻动往往事大，需格外重视。'},
+  {pos:'上爻',meaning:'事物终局，代表事情的最终走向和远期影响',detail:'上爻为卦之极，如事之终、物之极。上爻动，代表事情发展到了尽头，物极必反。上爻多悔吝，因已至极限，进无可进。若问事业，代表事业到了需要转型或收尾的阶段；若问感情，代表关系到了需要重新定义的时刻；若问健康，代表疾病到了关键期，要么好转要么恶化。上爻动提示需反思全局，做好收尾。'}
+];
+
+var MOVING_YAO_ANALYSIS = {
+  yangMove: {
+    summary: '老阳动变，阳极转阴，事物发展至盛极而衰，需警惕转折',
+    detail: '老阳为阳之极，阳极则阴生，如日中则昃、月盈则亏。此爻由阳变阴，意味着原本强盛、积极、刚健的力量开始转向衰退、消极、柔弱。这是自然规律的体现，盛极必衰、物极必反。',
+    advice: '面对老阳动变，切忌得意忘形、盲目乐观。当阳极转阴之际，正是需要收敛锋芒、未雨绸缪之时。宜反思自身是否过于刚强、是否需要适当退让。守成比进取更重要，防微杜渐比亡羊补牢更明智。'
+  },
+  yinMove: {
+    summary: '老阴动变，阴极转阳，否极泰来，困境中孕育转机',
+    detail: '老阴为阴之极，阴极则阳生，如冬尽春来、否极泰至。此爻由阴变阳，意味着原本衰弱、消极、柔顺的状态开始转向兴盛、积极、刚健。这是否极泰来的征兆，困境中孕育着新的希望。',
+    advice: '面对老阴动变，不可灰心丧气、轻言放弃。当阴极转阳之际，正是积蓄力量、等待破局之时。宜保持信心、坚守正道，黑暗终将过去，光明即将到来。但转机需要主动把握，不可坐等天赐。'
+  }
+};
+
+var YAO_POSITION_ANALYSIS = {
+  0: {
+    title: '初爻动——根基之变',
+    movingAnalysis: '初爻为事之始，初爻动则根基有变。若阳变阴，则根基由稳固转为动摇，原本坚实的基础出现裂痕，需及时修补加固；若阴变阳，则根基由薄弱转为坚实，事情的基础正在改善，前景渐好。',
+    stillAnalysis: '初爻安静，根基稳固，事情的基础条件没有大的变化，可以在此根基上稳步发展。'
+  },
+  1: {
+    title: '二爻动——内因之变',
+    movingAnalysis: '二爻居内卦之中，二爻动则内在动力有变。若阳变阴，内在动力由强转弱，原本积极的心态或良好的内部条件开始消退；若阴变阳，内在动力由弱转强，事情的内因正在好转，蓄势待发。',
+    stillAnalysis: '二爻安静，内在动力稳定，事情发展的内因没有重大变化，按部就班即可。'
+  },
+  2: {
+    title: '三爻动——转折之变',
+    movingAnalysis: '三爻居内外之交，三爻动则事情面临关键转折。若阳变阴，则由进取转为退守，原本顺利的发展遭遇瓶颈，需调整策略；若阴变阳，则由困境转为机遇，事情出现突破的可能，宜果断把握。',
+    stillAnalysis: '三爻安静，转折点尚未到来，事情按当前趋势继续发展，暂无重大变化。'
+  },
+  3: {
+    title: '四爻动——外显之变',
+    movingAnalysis: '四爻居外卦之下，四爻动则外在表现有变。若阳变阴，则外在影响由强转弱，原本显赫的地位或良好的声誉开始下降；若阴变阳，则外在影响由弱转强，事情开始受到外界关注和认可。',
+    stillAnalysis: '四爻安静，外在表现稳定，事情在外的显现和影响没有大的变化。'
+  },
+  4: {
+    title: '五爻动——核心之变',
+    movingAnalysis: '五爻为君位，五爻动则事情核心有变，影响最为重大。若阳变阴，则核心力量由盛转衰，领导力或关键优势开始减弱，需警惕权力或地位的动摇；若阴变阳，则核心力量由弱转强，事情出现强有力的转机，贵人或关键资源即将出现。',
+    stillAnalysis: '五爻安静，核心稳定，事情的主要方向和关键人物没有变化，大局可控。'
+  },
+  5: {
+    title: '上爻动——终局之变',
+    movingAnalysis: '上爻为卦之极，上爻动则事情到了终局。若阳变阴，则由盛转衰，事情走到了顶点开始下行，需及时收手、功成身退；若阴变阳，则否极泰来，事情到了最低谷开始反弹，黎明前的黑暗即将过去。',
+    stillAnalysis: '上爻安静，终局未到，事情尚未发展到极限，还有继续发展的空间。'
+  }
+};
+
+function generateAnalysis(code, yaos, topic) {
+  var info = GUA_INFO[code];
+  if (!info) return '<p>暂无此卦解析</p>';
+
+  var html = '';
+  var palaceInfo = getPalaceInfo(code);
+
+  html += '<div class="gua-ci">' + info.ci + '</div>';
+  html += '<div class="gua-nature">' + info.nature + ' · ' + info.element + ' · <span class="fortune-tag ' + (FORTUNE_CLASS[info.fortune] || 'fortune-ping') + '">' + info.fortune + '</span></div>';
+
+  if (palaceInfo) {
+    html += '<div class="gua-nature" style="font-size:0.72em;">属' + palaceInfo.palace + '宫（' + palaceInfo.element + '）· ' + palaceInfo.generationName + '卦 · 世在' + YAO_NAMES[palaceInfo.shiPos] + '爻 · 应在' + YAO_NAMES[palaceInfo.yingPos] + '爻</div>';
+  }
+
+  html += '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 卦象总论</div>';
+  html += '<div class="block-content">' + info.desc + '</div>';
+  html += '</div>';
+
+  if (palaceInfo) {
+    html += '<div class="analysis-block">';
+    html += '<div class="block-title"><span class="title-icon">◈</span> 六亲概览</div>';
+    html += '<div class="block-content">';
+    html += '<p style="margin-bottom:6px;">此卦属' + palaceInfo.palace + '宫，宫五行属<span class="highlight-text">' + palaceInfo.element + '</span>，以' + palaceInfo.element + '为我，定六亲如下：</p>';
+    var liuqinSummary = {};
+    for (var li = 0; li < 6; li++) {
+      var lq = getSixRelatives(palaceInfo.element, getLineElement(code, li));
+      if (!liuqinSummary[lq]) liuqinSummary[lq] = [];
+      liuqinSummary[lq].push(YAO_NAMES[li] + '爻(' + getLineZhi(code, li) + getLineElement(code, li) + ')');
+    }
+    var lqOrder = ['父母','兄弟','子孙','妻财','官鬼'];
+    for (var lo = 0; lo < lqOrder.length; lo++) {
+      var lqName = lqOrder[lo];
+      if (liuqinSummary[lqName]) {
+        var lqMeaning = LIUQIN_MEANING[lqName];
+        html += '<p style="margin-bottom:4px;"><span class="highlight-text">' + lqName + '</span>（' + lqMeaning.keyword + '）：' + liuqinSummary[lqName].join('、') + '</p>';
+      }
+    }
+    html += '</div></div>';
+  }
+
+  var matchedTopic = null;
+  var topicKeys = ['财运','事业','姻缘','健康','学业','出行','官讼','家宅','寻人','失物'];
+  for (var t = 0; t < topicKeys.length; t++) {
+    if (topic === topicKeys[t] && info.topic[topicKeys[t]]) {
+      matchedTopic = topicKeys[t];
+      break;
+    }
+  }
+
+  if (matchedTopic) {
+    html += '<div class="analysis-block">';
+    html += '<div class="block-title"><span class="title-icon">◈</span> ' + matchedTopic + '分析</div>';
+    html += '<div class="block-content"><span class="highlight-text">' + info.topic[matchedTopic] + '</span></div>';
+    if (palaceInfo) {
+      html += '<div class="block-content" style="margin-top:6px;">' + generateTopicLiuqinAnalysis(palaceInfo, code, yaos, matchedTopic) + '</div>';
+    }
+    html += '</div>';
+  } else if (topic) {
+    var generalTopic = inferTopicAnalysis(info, topic);
+    html += '<div class="analysis-block">';
+    html += '<div class="block-title"><span class="title-icon">◈</span> 「' + topic + '」分析</div>';
+    html += '<div class="block-content"><span class="highlight-text">' + generalTopic + '</span></div>';
+    if (palaceInfo) {
+      html += '<div class="block-content" style="margin-top:6px;">' + generateTopicLiuqinAnalysis(palaceInfo, code, yaos, topic) + '</div>';
+    }
+    html += '</div>';
+  }
+
+  var movingIndices = [];
+  for (var i = 0; i < yaos.length; i++) {
+    if (yaos[i].isMoving) movingIndices.push(i);
+  }
+
+  html += generateFortuneAssessment(info, code, yaos, palaceInfo, movingIndices, topic);
+
+  html += generateYaoDetailBlocks(code, yaos, movingIndices, info, palaceInfo);
+
+  if (palaceInfo) {
+    html += '<div class="analysis-block">';
+    html += '<div class="block-title"><span class="title-icon">◈</span> 世应分析</div>';
+    html += '<div class="block-content">';
+    var shiLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.shiPos));
+    var yingLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.yingPos));
+    var shiZhi = getLineZhi(code, palaceInfo.shiPos);
+    var yingZhi = getLineZhi(code, palaceInfo.yingPos);
+    var shiMoving = yaos[palaceInfo.shiPos].isMoving;
+    var yingMoving = yaos[palaceInfo.yingPos].isMoving;
+    html += '<p style="margin-bottom:6px;"><span class="highlight-text">世爻</span>（' + YAO_NAMES[palaceInfo.shiPos] + '爻·' + shiLq + shiZhi + '）：代表求测者自身。世爻持' + shiLq + '，' + LIUQIN_MEANING[shiLq].desc;
+    if (shiMoving) html += ' 世爻发动，自身有变，主动出击或自身状态将发生转变。';
+    else html += ' 世爻安静，自身状态稳定，暂无重大变化。';
+    html += '</p>';
+    html += '<p style="margin-bottom:6px;"><span class="highlight-text">应爻</span>（' + YAO_NAMES[palaceInfo.yingPos] + '爻·' + yingLq + yingZhi + '）：代表所问之事或对方。应爻持' + yingLq + '，' + LIUQIN_MEANING[yingLq].desc;
+    if (yingMoving) html += ' 应爻发动，对方或事情本身有变，需关注外部变化。';
+    else html += ' 应爻安静，对方或事情本身暂无重大变化。';
+    html += '</p>';
+    html += '<p>世应关系：世持' + shiLq + '，应持' + yingLq + '。';
+    var shiEl = getLineElement(code, palaceInfo.shiPos);
+    var yingEl = getLineElement(code, palaceInfo.yingPos);
+    if (shiEl === yingEl) html += '世应五行比和，双方势均力敌。';
+    else if (elementGenerates(shiEl, yingEl)) html += '世生应，我有意于对方，主动付出。';
+    else if (elementGenerates(yingEl, shiEl)) html += '应生世，对方有意于我，得人相助。';
+    else if (elementOvercomes(shiEl, yingEl)) html += '世克应，我制约对方，于我有利。';
+    else if (elementOvercomes(yingEl, shiEl)) html += '应克世，对方制约我，需防受制。';
+    html += '</p>';
+    html += '</div></div>';
+  }
+
+  html += generateYongshenDeepAnalysis(code, yaos, palaceInfo, movingIndices, topic);
+
+  html += generateChangedGuaAnalysis(code, yaos, movingIndices, topic);
+
+  if (movingIndices.length > 0) {
+    html += '<div class="analysis-block">';
+    html += '<div class="block-title"><span class="title-icon">◈</span> 动爻综合论断</div>';
+    html += '<div class="block-content">';
+    if (movingIndices.length === 1) {
+      var idx = movingIndices[0];
+      var yao = yaos[idx];
+      var posAnalysis = YAO_POSITION_ANALYSIS[idx];
+      html += '<p style="margin-bottom:8px;"><span class="highlight-text">' + posAnalysis.title + '</span></p>';
+      html += '<p style="margin-bottom:6px;">' + posAnalysis.movingAnalysis + '</p>';
+      if (palaceInfo) {
+        var moveLq = getSixRelatives(palaceInfo.element, getLineElement(code, idx));
+        html += '<p style="margin-bottom:6px;">此爻持<span class="highlight-text">' + moveLq + '</span>，' + LIUQIN_MEANING[moveLq].desc + '</p>';
+      }
+      var changeInfo = yao.isYang ? MOVING_YAO_ANALYSIS.yangMove : MOVING_YAO_ANALYSIS.yinMove;
+      html += '<p style="margin-bottom:6px;">' + changeInfo.summary + '。</p>';
+      html += '<p style="margin-bottom:6px;">' + changeInfo.detail + '</p>';
+      html += '<p><span class="highlight-text">应对之策：</span>' + changeInfo.advice + '</p>';
+    } else if (movingIndices.length === 2) {
+      html += '<p style="margin-bottom:8px;">两爻齐动，事情在两个层面同时发生变化，需兼顾两端。</p>';
+      for (var m = 0; m < movingIndices.length; m++) {
+        var idx2 = movingIndices[m];
+        var yao2 = yaos[idx2];
+        var posA = YAO_POSITION_ANALYSIS[idx2];
+        var changeInfo2 = yao2.isYang ? MOVING_YAO_ANALYSIS.yangMove : MOVING_YAO_ANALYSIS.yinMove;
+        html += '<p style="margin-bottom:6px;"><span class="highlight-text">' + posA.title + '</span>：' + posA.movingAnalysis + '</p>';
+        if (palaceInfo) {
+          var moveLq2 = getSixRelatives(palaceInfo.element, getLineElement(code, idx2));
+          html += '<p style="margin-bottom:4px;padding-left:12px;">持' + moveLq2 + '，' + LIUQIN_MEANING[moveLq2].keyword + '</p>';
+        }
+        html += '<p style="margin-bottom:8px;padding-left:12px;">' + changeInfo2.summary + '。' + changeInfo2.advice + '</p>';
+      }
+      if (Math.abs(movingIndices[0] - movingIndices[1]) === 1) {
+        html += '<p>两动爻相邻，变化相互关联，需统筹考虑、协调应对。</p>';
+      } else {
+        html += '<p>两动爻相隔较远，变化分别在不同层面，需分别应对、不可顾此失彼。</p>';
+      }
+    } else {
+      html += '<p style="margin-bottom:8px;">' + movingIndices.length + '爻齐动，变数极大，事情在多个层面同时发生变化。</p>';
+      for (var m2 = 0; m2 < movingIndices.length; m2++) {
+        var idx3 = movingIndices[m2];
+        var yao3 = yaos[idx3];
+        var posA2 = YAO_POSITION_ANALYSIS[idx3];
+        var changeInfo3 = yao3.isYang ? MOVING_YAO_ANALYSIS.yangMove : MOVING_YAO_ANALYSIS.yinMove;
+        var lqStr = '';
+        if (palaceInfo) {
+          var moveLq3 = getSixRelatives(palaceInfo.element, getLineElement(code, idx3));
+          lqStr = '（持' + moveLq3 + '）';
+        }
+        html += '<p style="margin-bottom:4px;"><span class="highlight-text">' + posA2.title + '</span>' + lqStr + '：' + changeInfo3.summary + '</p>';
+      }
+      html += '<p style="margin-top:8px;">多爻齐动，变局纷繁，宜以本卦卦辞为纲，以变卦卦辞为参考，综合判断。切忌头痛医头、脚痛医脚，需从全局出发，抓住主要矛盾。</p>';
+    }
+    html += '</div></div>';
+  }
+
+  html += '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 原因剖析</div>';
+  html += '<div class="block-content">' + generateReason(info, yaos, movingIndices, topic) + '</div>';
+  html += '</div>';
+
+  html += '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 启示与建议</div>';
+  html += '<div class="block-content">' + generateInsight(info, yaos, movingIndices, topic) + '</div>';
+  html += '</div>';
+
+  return html;
+}
+
+function generateTopicLiuqinAnalysis(palaceInfo, code, yaos, topic) {
+  var topicLqMap = {
+    '财运': '妻财', '事业': '官鬼', '姻缘': '妻财', '健康': '官鬼',
+    '学业': '父母', '出行': '兄弟', '官讼': '官鬼', '家宅': '父母',
+    '寻人': '子孙', '失物': '妻财'
+  };
+  var targetLq = topicLqMap[topic] || null;
+  var html = '';
+
+  if (targetLq) {
+    var targetPositions = [];
+    for (var i = 0; i < 6; i++) {
+      if (getSixRelatives(palaceInfo.element, getLineElement(code, i)) === targetLq) {
+        targetPositions.push(i);
+      }
+    }
+    html += '<p style="margin-bottom:6px;">问' + topic + '以<span class="highlight-text">' + targetLq + '</span>爻为用神。';
+    if (targetPositions.length > 0) {
+      var posStrs = [];
+      for (var j = 0; j < targetPositions.length; j++) {
+        var pi = targetPositions[j];
+        var zhi = getLineZhi(code, pi);
+        var isMoving = yaos[pi].isMoving;
+        var isShi = pi === palaceInfo.shiPos;
+        var isYing = pi === palaceInfo.yingPos;
+        var extra = '';
+        if (isShi) extra += '·世';
+        if (isYing) extra += '·应';
+        if (isMoving) extra += '·动';
+        posStrs.push(YAO_NAMES[pi] + '爻' + zhi + extra);
+      }
+      html += '用神在' + posStrs.join('、') + '。</p>';
+
+      for (var k = 0; k < targetPositions.length; k++) {
+        var pk = targetPositions[k];
+        var pkMoving = yaos[pk].isMoving;
+        var pkShi = pk === palaceInfo.shiPos;
+        var pkYing = pk === palaceInfo.yingPos;
+        var pkZhi = getLineZhi(code, pk);
+        var pkEl = getLineElement(code, pk);
+
+        if (pkShi) {
+          html += '<p style="margin-bottom:4px;">用神持世，求测者与所问之事紧密相连，自身可掌控局面，事在人为。此为吉象，表明事情的关键在于自身的努力和抉择。</p>';
+        }
+        if (pkYing) {
+          html += '<p style="margin-bottom:4px;">用神临应，所问之事的关键在于对方或外部环境，自身掌控力有限，需关注对方动向、顺势而为。</p>';
+        }
+        if (pkMoving) {
+          html += '<p style="margin-bottom:4px;">用神发动，事情将有明显变化，主动出击有利。' + targetLq + '发动之卦，' + LIUQIN_MEANING[targetLq].desc + '发动则其效应加速显现。</p>';
+        } else {
+          html += '<p style="margin-bottom:4px;">用神安静，事情暂无急变，宜守不宜急。' + targetLq + '安静则其效应缓慢，需耐心等待时机成熟。</p>';
+        }
+
+        for (var oi = 0; oi < 6; oi++) {
+          if (oi === pk) continue;
+          var oiLq = getSixRelatives(palaceInfo.element, getLineElement(code, oi));
+          var oiEl = getLineElement(code, oi);
+          if (elementGenerates(oiEl, pkEl) && oiLq === '子孙') {
+            html += '<p style="margin-bottom:4px;">子孙爻（' + YAO_NAMES[oi] + '爻' + getLineZhi(code, oi) + '）生用神，有福神助力，事情有贵人暗中相助。</p>';
+          }
+          if (elementOvercomes(oiEl, pkEl) && oiLq === '兄弟') {
+            html += '<p style="margin-bottom:4px;">兄弟爻（' + YAO_NAMES[oi] + '爻' + getLineZhi(code, oi) + '）克用神，有竞争或阻隔之力，需防他人争抢或横生枝节。</p>';
+          }
+        }
+      }
+    } else {
+      html += '卦中无' + targetLq + '爻，用神不上卦，所问之事缺乏直接助力，需借伏神或流月流日补救。此为不利的信号，表明事情缺少关键条件的支持，需格外努力或等待时机。</p>';
+    }
+  }
+  return html;
+}
+
+function generateYaoDetailBlocks(code, yaos, movingIndices, info, palaceInfo) {
+  var html = '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 六爻详析</div>';
+  html += '<div class="block-content">';
+
+  for (var i = 5; i >= 0; i--) {
+    var yao = yaos[i];
+    var yaoInfo = YAO_MEANING[i];
+    var posAnalysis = YAO_POSITION_ANALYSIS[i];
+    var isMoving = yao.isMoving;
+    var typeClass = '';
+    if (isMoving && yao.isYang) typeClass = 'ydb-type-yang-moving';
+    else if (isMoving && !yao.isYang) typeClass = 'ydb-type-yin-moving';
+    else if (!isMoving && yao.isYang) typeClass = 'ydb-type-yang-static';
+    else typeClass = 'ydb-type-yin-static';
+
+    var typeLabel = yao.type + (isMoving ? (yao.isYang ? ' ○动' : ' ×动') : ' ·静');
+
+    var headerExtra = '';
+    if (palaceInfo) {
+      var liuqin = getSixRelatives(palaceInfo.element, getLineElement(code, i));
+      var zhi = getLineZhi(code, i);
+      var gan = getLineGan(code, i);
+      headerExtra = ' <span style="color:' + getLiuqinColor(liuqin) + ';font-size:0.85em;">' + liuqin + '</span> ' + gan + zhi + getLineElement(code, i);
+      if (i === palaceInfo.shiPos) headerExtra += ' <span style="color:#d0a040;">世</span>';
+      if (i === palaceInfo.yingPos) headerExtra += ' <span style="color:#70a0c0;">应</span>';
+    }
+
+    html += '<div class="yao-detail-block">';
+    html += '<div class="ydb-header"><span class="ydb-pos">' + yaoInfo.pos + '</span><span class="ydb-type ' + typeClass + '">' + typeLabel + '</span>' + headerExtra + '</div>';
+    html += '<div class="ydb-meaning">' + yaoInfo.detail + '</div>';
+
+    if (palaceInfo) {
+      var lq2 = getSixRelatives(palaceInfo.element, getLineElement(code, i));
+      html += '<div class="ydb-meaning" style="color:#a09070;">持<span style="color:' + getLiuqinColor(lq2) + ';font-weight:700;">' + lq2 + '</span>：' + LIUQIN_MEANING[lq2].desc + '</div>';
+    }
+
+    if (isMoving) {
+      var changeInfo = yao.isYang ? MOVING_YAO_ANALYSIS.yangMove : MOVING_YAO_ANALYSIS.yinMove;
+      html += '<div class="ydb-ci">' + changeInfo.summary + '</div>';
+      html += '<div class="ydb-meaning">' + posAnalysis.movingAnalysis + '</div>';
+      html += '<div class="ydb-meaning">' + changeInfo.detail + '</div>';
+      html += '<div class="ydb-advice"><span class="advice-label">应对：</span>' + changeInfo.advice + '</div>';
+    } else {
+      html += '<div class="ydb-meaning" style="color:#6a5a40;">' + posAnalysis.stillAnalysis + '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function getLiuqinColor(liuqin) {
+  switch(liuqin) {
+    case '兄弟': return '#8ab060';
+    case '父母': return '#70a0c0';
+    case '子孙': return '#c0a050';
+    case '妻财': return '#c08050';
+    case '官鬼': return '#c06060';
+    default: return '#a08850';
+  }
+}
+
+function getChangedGuaCode(yaos) {
+  var changed = '';
+  for (var i = 0; i < 6; i++) {
+    if (yaos[i].isMoving) {
+      changed += yaos[i].isYang ? '0' : '1';
+    } else {
+      changed += yaos[i].isYang ? '1' : '0';
+    }
+  }
+  return changed;
+}
+
+function getGuaName(code) {
+  var info = GUA_INFO[code];
+  return info ? info.name : '未知卦';
+}
+
+function generateFortuneAssessment(info, code, yaos, palaceInfo, movingIndices, topic) {
+  var html = '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 吉凶综合评判</div>';
+  html += '<div class="block-content">';
+
+  var score = 50;
+  var reasons = [];
+
+  var fortuneScore = { '大吉': 30, '吉': 20, '小吉': 10, '平': 0, '凶': -15, '大凶': -25 };
+  var fs = fortuneScore[info.fortune] || 0;
+  score += fs;
+  if (fs > 0) reasons.push('卦象' + info.fortune + '（+' + fs + '分）');
+  else if (fs < 0) reasons.push('卦象' + info.fortune + '（' + fs + '分）');
+
+  if (palaceInfo) {
+    var shiLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.shiPos));
+    var topicLqMap = {
+      '财运': '妻财', '事业': '官鬼', '姻缘': '妻财', '健康': '官鬼',
+      '学业': '父母', '出行': '兄弟', '官讼': '官鬼', '家宅': '父母',
+      '寻人': '子孙', '失物': '妻财'
+    };
+    var targetLq = topicLqMap[topic] || null;
+
+    if (targetLq) {
+      var hasYongshen = false;
+      var yongshenMoving = false;
+      var yongshenShi = false;
+      for (var i = 0; i < 6; i++) {
+        if (getSixRelatives(palaceInfo.element, getLineElement(code, i)) === targetLq) {
+          hasYongshen = true;
+          if (yaos[i].isMoving) yongshenMoving = true;
+          if (i === palaceInfo.shiPos) yongshenShi = true;
+        }
+      }
+      if (hasYongshen) {
+        score += 10;
+        reasons.push('用神上卦（+10分）');
+      } else {
+        score -= 15;
+        reasons.push('用神不上卦（-15分）');
+      }
+      if (yongshenMoving) {
+        score += 5;
+        reasons.push('用神发动（+5分）');
+      }
+      if (yongshenShi) {
+        score += 8;
+        reasons.push('用神持世（+8分）');
+      }
+    }
+
+    if (shiLq === '子孙') {
+      score += 5;
+      reasons.push('世持子孙福神（+5分）');
+    } else if (shiLq === '官鬼') {
+      score -= 3;
+      reasons.push('世持官鬼忧神（-3分）');
+    } else if (shiLq === '兄弟') {
+      score -= 5;
+      reasons.push('世持兄弟劫财（-5分）');
+    }
+
+    var shiEl = getLineElement(code, palaceInfo.shiPos);
+    var yingEl = getLineElement(code, palaceInfo.yingPos);
+    if (elementGenerates(yingEl, shiEl)) {
+      score += 5;
+      reasons.push('应生世得助（+5分）');
+    } else if (elementOvercomes(yingEl, shiEl)) {
+      score -= 5;
+      reasons.push('应克世受制（-5分）');
+    }
+  }
+
+  if (movingIndices.length === 0) {
+    reasons.push('六爻皆静，变化不大');
+  } else if (movingIndices.length === 1) {
+    score += 3;
+    reasons.push('一爻独动，方向明确（+3分）');
+  } else if (movingIndices.length >= 4) {
+    score -= 5;
+    reasons.push('动爻过多，变数极大（-5分）');
+  }
+
+  if (score > 100) score = 100;
+  if (score < 0) score = 0;
+
+  var level, levelColor;
+  if (score >= 80) { level = '大吉'; levelColor = '#50c050'; }
+  else if (score >= 65) { level = '吉'; levelColor = '#80c050'; }
+  else if (score >= 50) { level = '小吉'; levelColor = '#c0c050'; }
+  else if (score >= 40) { level = '平'; levelColor = '#c0a050'; }
+  else if (score >= 25) { level = '凶'; levelColor = '#c07040'; }
+  else { level = '大凶'; levelColor = '#c04040'; }
+
+  html += '<div style="text-align:center;margin-bottom:12px;">';
+  html += '<div style="font-size:1.6em;color:' + levelColor + ';font-weight:700;letter-spacing:0.15em;">' + level + '</div>';
+  html += '<div style="font-size:0.7em;color:#6a5a40;margin-top:4px;">综合评分 ' + score + ' / 100</div>';
+  html += '</div>';
+
+  html += '<div style="font-size:0.75em;color:#8a7a60;line-height:1.8;">';
+  for (var r = 0; r < reasons.length; r++) {
+    html += '<p style="margin-bottom:2px;">· ' + reasons[r] + '</p>';
+  }
+  html += '</div>';
+
+  html += '<p style="margin-top:8px;font-size:0.72em;color:#6a5a40;">注：综合评判结合卦象吉凶、用神状态、世应关系、动爻数量等多维度因素，仅供参考。实际吉凶还需结合具体时辰与求测者情况综合判断。</p>';
+  html += '</div></div>';
+  return html;
+}
+
+function generateYongshenDeepAnalysis(code, yaos, palaceInfo, movingIndices, topic) {
+  if (!palaceInfo || !topic) return '';
+
+  var topicLqMap = {
+    '财运': '妻财', '事业': '官鬼', '姻缘': '妻财', '健康': '官鬼',
+    '学业': '父母', '出行': '兄弟', '官讼': '官鬼', '家宅': '父母',
+    '寻人': '子孙', '失物': '妻财'
+  };
+  var targetLq = topicLqMap[topic] || null;
+  if (!targetLq) return '';
+
+  var targetPositions = [];
+  for (var i = 0; i < 6; i++) {
+    if (getSixRelatives(palaceInfo.element, getLineElement(code, i)) === targetLq) {
+      targetPositions.push(i);
+    }
+  }
+
+  if (targetPositions.length === 0) return '';
+
+  var html = '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 用神深度分析</div>';
+  html += '<div class="block-content">';
+
+  for (var k = 0; k < targetPositions.length; k++) {
+    var pk = targetPositions[k];
+    var pkZhi = getLineZhi(code, pk);
+    var pkEl = getLineElement(code, pk);
+    var pkMoving = yaos[pk].isMoving;
+    var pkShi = pk === palaceInfo.shiPos;
+    var pkYing = pk === palaceInfo.yingPos;
+
+    html += '<p style="margin-bottom:6px;"><span class="highlight-text">' + YAO_NAMES[pk] + '爻' + pkZhi + pkEl + '</span>为用神（' + targetLq + '）';
+
+    if (pkShi) html += '，持世';
+    if (pkYing) html += '，临应';
+    if (pkMoving) html += '，发动';
+    html += '。</p>';
+
+    var shengByArr = [];
+    var keByArr = [];
+    var shengArr = [];
+    var keArr = [];
+    for (var oi = 0; oi < 6; oi++) {
+      if (oi === pk) continue;
+      var oiLq = getSixRelatives(palaceInfo.element, getLineElement(code, oi));
+      var oiEl = getLineElement(code, oi);
+      var oiZhi = getLineZhi(code, oi);
+      var oiMoving = yaos[oi].isMoving;
+
+      if (elementGenerates(oiEl, pkEl)) {
+        shengByArr.push({ pos: oi, lq: oiLq, zhi: oiZhi, moving: oiMoving });
+      }
+      if (elementOvercomes(oiEl, pkEl)) {
+        keByArr.push({ pos: oi, lq: oiLq, zhi: oiZhi, moving: oiMoving });
+      }
+      if (elementGenerates(pkEl, oiEl)) {
+        shengArr.push({ pos: oi, lq: oiLq, zhi: oiZhi, moving: oiMoving });
+      }
+      if (elementOvercomes(pkEl, oiEl)) {
+        keArr.push({ pos: oi, lq: oiLq, zhi: oiZhi, moving: oiMoving });
+      }
+    }
+
+    if (shengByArr.length > 0) {
+      var shengStrs = [];
+      for (var s = 0; s < shengByArr.length; s++) {
+        var item = shengByArr[s];
+        shengStrs.push(item.lq + YAO_NAMES[item.pos] + '爻' + item.zhi + (item.moving ? '·动' : ''));
+      }
+      html += '<p style="margin-bottom:4px;padding-left:12px;">有生用神之力：' + shengStrs.join('、') + '，用神得生则有力，事情有助力可依。</p>';
+    }
+
+    if (keByArr.length > 0) {
+      var keStrs = [];
+      for (var ke = 0; ke < keByArr.length; ke++) {
+        var item2 = keByArr[ke];
+        keStrs.push(item2.lq + YAO_NAMES[item2.pos] + '爻' + item2.zhi + (item2.moving ? '·动' : ''));
+      }
+      html += '<p style="margin-bottom:4px;padding-left:12px;">有克用神之力：' + keStrs.join('、') + '，用神受克则受损，需防阻力与不利因素。</p>';
+    }
+
+    if (shengArr.length > 0) {
+      var shengOutStrs = [];
+      for (var so = 0; so < shengArr.length; so++) {
+        var item3 = shengArr[so];
+        shengOutStrs.push(item3.lq + YAO_NAMES[item3.pos] + '爻' + item3.zhi);
+      }
+      html += '<p style="margin-bottom:4px;padding-left:12px;">用神生：' + shengOutStrs.join('、') + '，用神泄气生他爻，力量有所分散，需注意自身精力或资源的分配。</p>';
+    }
+
+    if (keArr.length > 0) {
+      var keOutStrs = [];
+      for (var ko = 0; ko < keArr.length; ko++) {
+        var item4 = keArr[ko];
+        keOutStrs.push(item4.lq + YAO_NAMES[item4.pos] + '爻' + item4.zhi);
+      }
+      html += '<p style="margin-bottom:4px;padding-left:12px;">用神克：' + keOutStrs.join('、') + '，用神克制他爻，有制约之力，可掌控局面但需防过刚。</p>';
+    }
+
+    var strength = '中性';
+    var strengthDesc = '';
+    if (shengByArr.length > keByArr.length) {
+      strength = '偏旺';
+      strengthDesc = '用神得生多、受克少，力量偏旺，事情有充足的条件和助力，利于推进。';
+    } else if (keByArr.length > shengByArr.length) {
+      strength = '偏弱';
+      strengthDesc = '用神受克多、得生少，力量偏弱，事情条件不足或阻力较大，需谨慎行事、寻求外援。';
+    } else {
+      strength = '中和';
+      strengthDesc = '用神生克相当，力量中和，事情条件与阻力相当，需把握时机、因势利导。';
+    }
+    if (pkMoving) {
+      strength += '·动';
+      strengthDesc += ' 用神发动，力量增强，事情变化加速。';
+    }
+    html += '<p style="margin-bottom:4px;"><span class="highlight-text">用神旺衰：' + strength + '</span>。' + strengthDesc + '</p>';
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function generateChangedGuaAnalysis(code, yaos, movingIndices, topic) {
+  if (movingIndices.length === 0) return '';
+
+  var changedCode = getChangedGuaCode(yaos);
+  var changedInfo = GUA_INFO[changedCode];
+  var changedName = getGuaName(changedCode);
+  var changedPalace = getPalaceInfo(changedCode);
+
+  var html = '<div class="analysis-block">';
+  html += '<div class="block-title"><span class="title-icon">◈</span> 变卦分析——' + changedName + '</div>';
+  html += '<div class="block-content">';
+
+  html += '<p style="margin-bottom:6px;">本卦' + getGuaName(code) + '变出' + changedName + '，由' + movingIndices.length + '个动爻引发变化，事情将从本卦所示状态向变卦所示状态转化。</p>';
+
+  if (changedInfo) {
+    html += '<p style="margin-bottom:6px;">变卦卦辞：<span class="highlight-text">' + changedInfo.ci + '</span></p>';
+    html += '<p style="margin-bottom:6px;">变卦卦性：' + changedInfo.nature + '，五行属' + changedInfo.element + '，' + changedInfo.desc + '</p>';
+
+    var origFortune = GUA_INFO[code].fortune;
+    var changedFortune = changedInfo.fortune;
+    var fortuneOrder = { '大凶': 0, '凶': 1, '平': 2, '小吉': 3, '吉': 4, '大吉': 5 };
+    if (fortuneOrder[changedFortune] > fortuneOrder[origFortune]) {
+      html += '<p style="margin-bottom:6px;">变卦吉于本卦，事情发展趋势向好，由' + origFortune + '转为' + changedFortune + '，表明经过变化后局势将改善。</p>';
+    } else if (fortuneOrder[changedFortune] < fortuneOrder[origFortune]) {
+      html += '<p style="margin-bottom:6px;">变卦凶于本卦，事情发展趋势转差，由' + origFortune + '转为' + changedFortune + '，需警惕变化带来的不利影响。</p>';
+    } else {
+      html += '<p style="margin-bottom:6px;">变卦与本卦吉凶相当，变化后总体格局不变，但具体情形有所不同。</p>';
+    }
+  }
+
+  if (changedPalace) {
+    var origPalace = getPalaceInfo(code);
+    if (origPalace && origPalace.palace !== changedPalace.palace) {
+      html += '<p style="margin-bottom:6px;">本卦属' + origPalace.palace + '宫（' + origPalace.element + '），变卦属' + changedPalace.palace + '宫（' + changedPalace.element + '），宫位变化意味着事情的根本性质发生了转变，从' + origPalace.element + '之性转为' + changedPalace.element + '之性。</p>';
+    }
+
+    if (topic) {
+      var topicLqMap = {
+        '财运': '妻财', '事业': '官鬼', '姻缘': '妻财', '健康': '官鬼',
+        '学业': '父母', '出行': '兄弟', '官讼': '官鬼', '家宅': '父母',
+        '寻人': '子孙', '失物': '妻财'
+      };
+      var targetLq = topicLqMap[topic] || null;
+      if (targetLq) {
+        var changedYongshen = false;
+        for (var i = 0; i < 6; i++) {
+          if (getSixRelatives(changedPalace.element, getLineElement(changedCode, i)) === targetLq) {
+            changedYongshen = true;
+            break;
+          }
+        }
+        if (changedYongshen) {
+          html += '<p style="margin-bottom:6px;">变卦中用神（' + targetLq + '）上卦，变化后事情的关键条件具备，发展趋势向好。</p>';
+        } else {
+          html += '<p style="margin-bottom:6px;">变卦中用神（' + targetLq + '）不上卦，变化后事情仍缺乏关键助力。</p>';
+        }
+      }
+    }
+  }
+
+  html += '<p style="margin-top:6px;font-size:0.72em;color:#6a5a40;">变卦代表事情发展的最终走向，本卦为因，变卦为果。本卦示现状，变卦示结局。宜综合本变两卦之象，审时度势，趋吉避凶。</p>';
+  html += '</div></div>';
+  return html;
+}
+
+function inferTopicAnalysis(info, topic) {
+  var fortune = info.fortune;
+  var nature = info.nature;
+  var kw = info.kw;
+  var base = '';
+
+  if (fortune === '大吉') base = '此卦大吉，所问「' + topic + '」大有可为，';
+  else if (fortune === '吉') base = '此卦吉祥，所问「' + topic + '」前景看好，';
+  else if (fortune === '小吉') base = '此卦小吉，所问「' + topic + '」小有收获，';
+  else if (fortune === '平') base = '此卦平平，所问「' + topic + '」需谨慎行事，';
+  else if (fortune === '凶') base = '此卦不利，所问「' + topic + '」需防风险，';
+  else base = '此卦大凶，所问「' + topic + '」宜退守为上，';
+
+  base += '卦性' + nature + '，关键在于' + kw.split('、')[0] + '。';
+  return base;
+}
+
+function generateReason(info, yaos, movingIndices, topic) {
+  var parts = [];
+  var code = yaos.map(function(y) { return y.isYang ? '1' : '0'; }).join('');
+  var palaceInfo = getPalaceInfo(code);
+
+  parts.push('<p style="margin-bottom:8px;">此卦' + info.nature + '，' + info.desc + '</p>');
+
+  if (palaceInfo) {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">宫位因素：</span>此卦属' + palaceInfo.palace + '宫，宫五行属' + palaceInfo.element + '，为' + palaceInfo.generationName + '卦。');
+    if (palaceInfo.generation === 0) parts.push('本宫卦，力量纯粹，卦性鲜明，事情发展方向明确。');
+    else if (palaceInfo.generation <= 2) parts.push(palaceInfo.generationName + '卦，卦气渐变，事情开始偏离本源，但根基尚在。');
+    else if (palaceInfo.generation <= 4) parts.push(palaceInfo.generationName + '卦，卦气已远，事情变化较大，需注意本末之别。');
+    else if (palaceInfo.generation === 5) parts.push('五世卦，卦气极远，事情已远离初衷，变化深刻。');
+    else if (palaceInfo.generation === 6) parts.push('游魂卦，卦气游移不定，事情变化无常，需防心神不宁、举棋不定。');
+    else parts.push('归魂卦，卦气回归，事情有回转之象，可能回归原点或出现转机。');
+    parts.push('</p>');
+  }
+
+  if (movingIndices.length === 0) {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">动爻因素：</span>六爻皆静，无动爻变化，表明事情发展较为稳定，内外因素暂无重大改变。静卦主守，不宜主动求变，宜安于现状、静待时机。若问长远之事，静卦反主持久稳定。</p>');
+  } else if (movingIndices.length === 1) {
+    var idx = movingIndices[0];
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">动爻因素：</span>仅' + YAO_MEANING[idx].pos + '独动，事情变化集中在' + YAO_MEANING[idx].meaning.substring(0, YAO_MEANING[idx].meaning.indexOf('，')) + '方面，这是关键所在。一爻独动为卦之枢纽，变化方向明确，应以此爻为判断核心。');
+    if (palaceInfo) {
+      var moveLq = getSixRelatives(palaceInfo.element, getLineElement(code, idx));
+      parts.push('此动爻持' + moveLq + '，' + LIUQIN_MEANING[moveLq].keyword + '方面的变化最为显著。');
+    }
+    parts.push('</p>');
+  } else if (movingIndices.length <= 3) {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">动爻因素：</span>有' + movingIndices.length + '个动爻，事情在多个层面发生变化，需综合考量各动爻的影响。');
+    if (palaceInfo) {
+      var movingLqs = [];
+      for (var mi = 0; mi < movingIndices.length; mi++) {
+        var mlq = getSixRelatives(palaceInfo.element, getLineElement(code, movingIndices[mi]));
+        if (movingLqs.indexOf(mlq) === -1) movingLqs.push(mlq);
+      }
+      parts.push('动爻涉及六亲：' + movingLqs.join('、') + '，表明事情在' + movingLqs.map(function(l) { return LIUQIN_MEANING[l].keyword; }).join('、') + '等方面均有变化。');
+    }
+    parts.push('</p>');
+  } else {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">动爻因素：</span>动爻多达' + movingIndices.length + '个，变数极大，事情发展充满不确定性。多爻齐动往往预示事情纷繁复杂，头绪众多，需抓住主要矛盾，不宜面面俱到。古语云："爻多则事多"，变数多则需以静制动、以简驭繁。</p>');
+  }
+
+  if (palaceInfo) {
+    var shiLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.shiPos));
+    var shiMoving = yaos[palaceInfo.shiPos].isMoving;
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世爻因素：</span>世持' + shiLq + '，' + LIUQIN_MEANING[shiLq].desc);
+    if (shiMoving) parts.push('世爻发动，自身状态有变，是主动求变还是被动应变，需结合具体情况判断。');
+    parts.push('</p>');
+
+    var yingLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.yingPos));
+    var yingMoving = yaos[palaceInfo.yingPos].isMoving;
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">应爻因素：</span>应持' + yingLq + '，' + LIUQIN_MEANING[yingLq].desc);
+    if (yingMoving) parts.push('应爻发动，对方或事情本身有变，外部环境正在发生变化。');
+    parts.push('</p>');
+
+    var shiEl = getLineElement(code, palaceInfo.shiPos);
+    var yingEl = getLineElement(code, palaceInfo.yingPos);
+    if (elementGenerates(yingEl, shiEl)) {
+      parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世应关系：</span>应生世，外部环境或对方有利于我，有贵人相助之象，事情易得外力支持。</p>');
+    } else if (elementOvercomes(yingEl, shiEl)) {
+      parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世应关系：</span>应克世，外部环境或对方制约我，有受制之象，需防外部压力或阻碍。</p>');
+    } else if (elementGenerates(shiEl, yingEl)) {
+      parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世应关系：</span>世生应，我有意于对方或事情，主动付出之象，需注意投入是否值得。</p>');
+    } else if (elementOvercomes(shiEl, yingEl)) {
+      parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世应关系：</span>世克应，我制约对方或事情，有掌控之象，但需防过于强势导致反弹。</p>');
+    }
+  }
+
+  var fortune = info.fortune;
+  if (fortune === '大吉' || fortune === '吉') {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">卦象吉凶因素：</span>卦象总体吉利，内在原因在于时机成熟、条件具备，顺势而为则事半功倍。天时地利人和三者有其一或更多，宜乘势而上。</p>');
+  } else if (fortune === '小吉') {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">卦象吉凶因素：</span>卦象小吉，条件部分具备但尚有不足，需补齐短板方能成事。小吉之卦，重在坚持与积累。</p>');
+  } else if (fortune === '平') {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">卦象吉凶因素：</span>卦象平平，吉凶参半，条件尚未完全成熟，需等待或创造有利条件。平卦之要，在于审时度势、不急不躁。</p>');
+  } else {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">卦象吉凶因素：</span>卦象不利，原因在于时机未到或条件欠缺，强行推进恐事与愿违。凶卦之要，在于知止而后安，退一步海阔天空。</p>');
+  }
+
+  return parts.join('');
+}
+
+function generateInsight(info, yaos, movingIndices, topic) {
+  var parts = [];
+  var code = yaos.map(function(y) { return y.isYang ? '1' : '0'; }).join('');
+  var palaceInfo = getPalaceInfo(code);
+  var fortune = info.fortune;
+  var kw = info.kw.split('、');
+
+  parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">总体策略：</span>');
+  if (fortune === '大吉' || fortune === '吉') {
+    parts.push('宜积极行动，把握良机。卦象吉利，天时在我，当仁不让。以「' + kw[0] + '」为指引，发挥' + kw[1] + '之长，大胆推进。');
+    if (movingIndices.length > 0) {
+      parts.push('虽有动爻变化，但总体吉利，变化反为发展契机，宜顺势调整、借力打力。');
+    }
+    parts.push('切记：吉时当思危，盛极需防衰，持盈保泰方为长久之道。得意不可忘形，顺境更需谨慎。');
+  } else if (fortune === '小吉') {
+    parts.push('宜稳步推进，不宜冒进。卦象小吉，条件部分具备，需补齐不足。以「' + kw[0] + '」为根基，注重' + kw[1] + '，稳扎稳打。');
+    if (movingIndices.length > 0) {
+      parts.push('动爻提示需关注变化，灵活调整策略，以变应变。');
+    }
+    parts.push('小吉之卦，积小胜为大胜，持之以恒终有大成。切忌贪大求全，宜步步为营。');
+  } else if (fortune === '平') {
+    parts.push('宜守正待时，不宜轻举妄动。卦象平平，吉凶未定，需审时度势。以「' + kw[0] + '」为准则，保持' + kw[1] + '，静观其变。');
+    if (movingIndices.length > 0) {
+      parts.push('动爻显示事情有变数，需密切关注，随机应变，把握变化中的机遇。');
+    }
+    parts.push('平卦之道，在于不急不躁，静待时机，厚积薄发。时机未到时，养精蓄锐；时机来临时，果断出击。');
+  } else {
+    parts.push('宜退守自保，不宜强行推进。卦象不利，需韬光养晦、避其锋芒。以「' + kw[0] + '」为要，避免' + (kw[2] || '冒进') + '，先求自保再谋发展。');
+    if (movingIndices.length > 0) {
+      parts.push('动爻显示困境中有转机，否极泰来，需耐心等待时机。动爻所在之处，即为转机所在。');
+    }
+    parts.push('凶卦之要，在于知止而后安，退一步海阔天空，守得云开见月明。逆境中保持信心，黎明前最是黑暗。');
+  }
+  parts.push('</p>');
+
+  if (palaceInfo && topic) {
+    var topicLqMap = {
+      '财运': '妻财', '事业': '官鬼', '姻缘': '妻财', '健康': '官鬼',
+      '学业': '父母', '出行': '兄弟', '官讼': '官鬼', '家宅': '父母',
+      '寻人': '子孙', '失物': '妻财'
+    };
+    var targetLq = topicLqMap[topic] || null;
+    if (targetLq) {
+      parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">用神策略：</span>问' + topic + '以' + targetLq + '为用神。');
+
+      var hasYongshen = false;
+      var yongshenMoving = false;
+      var yongshenShi = false;
+      for (var i = 0; i < 6; i++) {
+        if (getSixRelatives(palaceInfo.element, getLineElement(code, i)) === targetLq) {
+          hasYongshen = true;
+          if (yaos[i].isMoving) yongshenMoving = true;
+          if (i === palaceInfo.shiPos) yongshenShi = true;
+        }
+      }
+
+      if (hasYongshen) {
+        parts.push('用神上卦，事情有根本支撑。');
+        if (yongshenShi) parts.push('用神持世，自身可掌控局面，宜主动出击、把握主动权。');
+        if (yongshenMoving) parts.push('用神发动，事情变化加速，宜顺势而为、乘势而上。');
+        else parts.push('用神安静，宜静待时机，不宜急于求成。');
+
+        var yongshenPositions = [];
+        for (var j = 0; j < 6; j++) {
+          if (getSixRelatives(palaceInfo.element, getLineElement(code, j)) === targetLq) {
+            yongshenPositions.push(j);
+          }
+        }
+        var shengCount = 0;
+        var keCount = 0;
+        for (var yp = 0; yp < yongshenPositions.length; yp++) {
+          var ypEl = getLineElement(code, yongshenPositions[yp]);
+          for (var oi = 0; oi < 6; oi++) {
+            if (yongshenPositions.indexOf(oi) >= 0) continue;
+            var oiEl = getLineElement(code, oi);
+            if (elementGenerates(oiEl, ypEl)) shengCount++;
+            if (elementOvercomes(oiEl, ypEl)) keCount++;
+          }
+        }
+        if (shengCount > keCount) {
+          parts.push('用神得生多、受克少，力量充足，宜积极行动。');
+        } else if (keCount > shengCount) {
+          parts.push('用神受克多、得生少，力量不足，宜寻求外援、积蓄力量。');
+        }
+      } else {
+        parts.push('用神不上卦，事情缺乏关键条件，需借外力或等待时机。建议：一可等待流月流日用神当令之时；二可主动创造条件，弥补用神之缺；三可关注伏神，暗中有助力。');
+      }
+      parts.push('</p>');
+    }
+  }
+
+  if (palaceInfo) {
+    var shiLq = getSixRelatives(palaceInfo.element, getLineElement(code, palaceInfo.shiPos));
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">世爻策略：</span>世持' + shiLq + '，');
+    switch(shiLq) {
+      case '父母':
+        parts.push('主辛劳文书之事，宜勤勉努力、注重细节，以学识和经验取胜。凡事亲力亲为，辛苦但有收获。');
+        break;
+      case '兄弟':
+        parts.push('主竞争阻隔之事，宜防破财争端，避免与同辈争利。合作优于对抗，退让可保平安。');
+        break;
+      case '子孙':
+        parts.push('主福神解忧之事，宜放松心态、顺其自然，福气自来。子孙为福神，克制官鬼，化解灾祸，宜积极乐观。');
+        break;
+      case '妻财':
+        parts.push('主财源成果之事，宜务实求财、注重实际收益。财运在握，但需防贪多嚼不烂，适度而止。');
+        break;
+      case '官鬼':
+        parts.push('主忧患官非之事，宜谨慎行事、防患未然。官鬼为克我之物，需注意健康和安全，不宜冒险。但问官职则反为吉。');
+        break;
+    }
+    if (yaos[palaceInfo.shiPos].isMoving) {
+      parts.push('世爻发动，自身状态有变，宜主动调整策略、适应变化。');
+    }
+    parts.push('</p>');
+  }
+
+  parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">行动要点：</span>');
+  var actionPoints = [];
+
+  if (fortune === '大吉' || fortune === '吉') {
+    actionPoints.push('把握时机，果断行动，不可犹豫错失良机');
+    actionPoints.push('乘势而上，扩大成果，但需留有余地');
+    actionPoints.push('注意保持谦逊，盛极当思衰退');
+  } else if (fortune === '小吉') {
+    actionPoints.push('稳中求进，不贪大求全');
+    actionPoints.push('补齐短板，完善条件');
+    actionPoints.push('坚持积累，厚积薄发');
+  } else if (fortune === '平') {
+    actionPoints.push('审时度势，不急于表态');
+    actionPoints.push('做好两手准备，进退有度');
+    actionPoints.push('观察变化，伺机而动');
+  } else {
+    actionPoints.push('退守自保，避免正面冲突');
+    actionPoints.push('韬光养晦，积蓄力量');
+    actionPoints.push('寻找转机，否极泰来');
+  }
+
+  if (movingIndices.length > 0) {
+    actionPoints.push('关注动爻所示变化方向，顺势而为');
+  }
+  if (movingIndices.length >= 4) {
+    actionPoints.push('变数过多，宜以静制动，不宜轻举妄动');
+  }
+
+  for (var ap = 0; ap < actionPoints.length; ap++) {
+    parts.push((ap + 1) + '. ' + actionPoints[ap] + '；');
+  }
+  parts.push('</p>');
+
+  if (topic) {
+    parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">针对「' + topic + '」的建议：</span>');
+    var topicAdvice = {
+      '财运': '理财宜稳健，不宜投机冒进。量入为出，开源节流。财运亨通时当储蓄备荒，财运不佳时当节俭度日。',
+      '事业': '职场宜守正，不宜急功近利。与人为善，广结善缘。升迁有望时当把握机会，遭遇瓶颈时当充电提升。',
+      '姻缘': '感情宜真诚，不宜虚情假意。有缘千里来相会，无缘对面不相逢。单身者宜主动社交，有伴者宜珍惜眼前人。',
+      '健康': '身体宜调养，不宜过度劳累。未病先防，既病防变。注意作息规律，饮食有节，适度运动。',
+      '学业': '学习宜勤勉，不宜浮躁急进。书山有路勤为径，学海无涯苦作舟。基础扎实方能举一反三，持之以恒终能学有所成。',
+      '出行': '出行宜谨慎，不宜冒险远行。提前规划，注意安全。吉时出行顺风顺水，凶时出行宜推迟改期。',
+      '官讼': '讼事宜和解，不宜纠缠对抗。和为贵，退为上。能避则避，能和则和，不得已方对簿公堂。',
+      '家宅': '家宅宜安宁，不宜频繁变动。家和万事兴，居安思危。注意家庭和睦，居所整洁。',
+      '寻人': '寻人宜从速，不宜拖延等待。多方打听，广布消息。用神方位可作参考，子孙发动易寻得。',
+      '失物': '失物宜速寻，不宜久拖。回忆行踪，仔细搜索。用神方位可作参考，动爻位置可定方向。'
+    };
+    if (topicAdvice[topic]) {
+      parts.push(topicAdvice[topic]);
+    } else {
+      parts.push('宜以卦象所示之理指导行动，不可逆卦势而为。审时度势，趋吉避凶。');
+    }
+    parts.push('</p>');
+  }
+
+  parts.push('<p style="margin-bottom:8px;"><span class="highlight-text">最后提醒：</span>卦象为参考，人为关键。命由天定，事在人为。吉卦不努力则吉转凶，凶卦能自省则凶化吉。占卜之道，在于知命而不认命，顺势而为、趋吉避凶，方为上策。</p>');
+
+  return parts.join('');
+}
+
+var yaoResults = [];
+var isAnimating = false;
+var selectedTopic = '';
+
+function selectTopic(el) {
+  var tags = document.querySelectorAll('.topic-tag');
+  for (var i = 0; i < tags.length; i++) {
+    tags[i].classList.remove('selected');
+  }
+  el.classList.add('selected');
+  selectedTopic = el.getAttribute('data-topic');
+  document.getElementById('customTopic').value = '';
+  document.getElementById('btnConfirmTopic').disabled = false;
+}
+
+function onCustomInput() {
+  var val = document.getElementById('customTopic').value.trim();
+  if (val.length > 0) {
+    var tags = document.querySelectorAll('.topic-tag');
+    for (var i = 0; i < tags.length; i++) {
+      tags[i].classList.remove('selected');
+    }
+    selectedTopic = val;
+    document.getElementById('btnConfirmTopic').disabled = false;
+  } else {
+    var hasSelected = document.querySelector('.topic-tag.selected');
+    if (!hasSelected) {
+      selectedTopic = '';
+      document.getElementById('btnConfirmTopic').disabled = true;
+    }
+  }
+}
+
+function confirmTopic() {
+  if (!selectedTopic) return;
+  document.getElementById('topicSection').classList.add('hidden');
+  document.getElementById('divinationArea').classList.remove('hidden');
+  document.getElementById('topicValue').textContent = selectedTopic;
+}
+
+function generateYaoByShiCao() {
+  var r = Math.random() * 16;
+  if (r < 3) return { value: 9, type: '老阳', isYang: true, isMoving: true };
+  if (r < 8) return { value: 8, type: '少阴', isYang: false, isMoving: false };
+  if (r < 13) return { value: 7, type: '少阳', isYang: true, isMoving: false };
+  return { value: 6, type: '老阴', isYang: false, isMoving: true };
+}
+
+function createYaoSymbol(yao) {
+  var div = document.createElement('div');
+  div.className = 'yao-symbol';
+  if (yao.isYang) {
+    var line = document.createElement('div');
+    line.className = 'yang-line' + (yao.isMoving ? ' moving' : '');
+    div.appendChild(line);
+  } else {
+    var line1 = document.createElement('div');
+    var line2 = document.createElement('div');
+    line1.className = 'yin-line' + (yao.isMoving ? ' moving' : '');
+    line2.className = 'yin-line' + (yao.isMoving ? ' moving' : '');
+    div.appendChild(line1);
+    div.appendChild(line2);
+  }
+  return div;
+}
+
+function renderYaoRow(container, yao, index, guaCode) {
+  var row = document.createElement('div');
+  row.className = 'yao-row';
+
+  var pos = document.createElement('span');
+  pos.className = 'yao-pos';
+  pos.textContent = YAO_NAMES[index];
+
+  if (guaCode) {
+    var palaceInfo = getPalaceInfo(guaCode);
+    if (palaceInfo) {
+      var liuqin = getSixRelatives(palaceInfo.element, getLineElement(guaCode, index));
+      var lqEl = document.createElement('span');
+      lqEl.className = 'yao-liuqin ' + getLiuqinClass(liuqin);
+      lqEl.textContent = liuqin;
+      row.appendChild(lqEl);
+    }
+  }
+
+  var symbol = createYaoSymbol(yao);
+
+  var typeName = document.createElement('span');
+  typeName.className = 'yao-type-name' + (yao.isMoving ? ' moving' : '');
+  typeName.textContent = yao.type;
+
+  var type = document.createElement('span');
+  type.className = 'yao-type' + (yao.isMoving ? ' moving' : '');
+  if (yao.isYang && yao.isMoving) type.textContent = '○';
+  else if (!yao.isYang && yao.isMoving) type.textContent = '×';
+  else type.textContent = '●';
+
+  row.appendChild(pos);
+
+  if (guaCode) {
+    var palaceInfo2 = getPalaceInfo(guaCode);
+    if (palaceInfo2) {
+      var liuqin2 = getSixRelatives(palaceInfo2.element, getLineElement(guaCode, index));
+      var lqEl2 = document.createElement('span');
+      lqEl2.className = 'yao-liuqin ' + getLiuqinClass(liuqin2);
+      lqEl2.textContent = liuqin2;
+      row.appendChild(lqEl2);
+    }
+
+    var zhi = document.createElement('span');
+    zhi.className = 'yao-zhi';
+    zhi.textContent = getLineZhi(guaCode, index);
+    row.appendChild(zhi);
+  }
+
+  row.appendChild(symbol);
+  row.appendChild(typeName);
+  row.appendChild(type);
+
+  if (guaCode) {
+    var palaceInfo3 = getPalaceInfo(guaCode);
+    if (palaceInfo3) {
+      if (index === palaceInfo3.shiPos) {
+        var shiEl = document.createElement('span');
+        shiEl.className = 'yao-shi-ying shi';
+        shiEl.textContent = '世';
+        row.appendChild(shiEl);
+      } else if (index === palaceInfo3.yingPos) {
+        var yingEl = document.createElement('span');
+        yingEl.className = 'yao-shi-ying ying';
+        yingEl.textContent = '应';
+        row.appendChild(yingEl);
+      }
+    }
+  }
+
+  container.appendChild(row);
+  setTimeout(function() { row.classList.add('visible'); }, 50);
+}
+
+function getGuaCode(yaos) {
+  return yaos.map(function(y) { return y.isYang ? '1' : '0'; }).join('');
+}
+
+function getChangedGuaCode(yaos) {
+  return yaos.map(function(y) {
+    if (y.isMoving) return y.isYang ? '0' : '1';
+    return y.isYang ? '1' : '0';
+  }).join('');
+}
+
+function getGuaName(code) {
+  if (GUA64[code]) return GUA64[code];
+  var lower = code.substring(0, 3);
+  var upper = code.substring(3, 6);
+  var lowerName = GUA8[lower] || '?';
+  var upperName = GUA8[upper] || '?';
+  return upperName + lowerName;
+}
+
+function hasMovingYao(yaos) {
+  return yaos.some(function(y) { return y.isMoving; });
+}
+
+function showAnimation() {
+  return new Promise(function(resolve) {
+    var overlay = document.getElementById('animOverlay');
+    var text = document.getElementById('animText');
+    var steps = [
+      '分而为二以象两',
+      '挂一以象三',
+      '揲之以四以象四时',
+      '归奇于扐以象闰',
+      '三变成爻'
+    ];
+    var step = 0;
+    overlay.classList.add('active');
+
+    function nextStep() {
+      if (step < steps.length) {
+        text.textContent = steps[step];
+        step++;
+        setTimeout(nextStep, 500);
+      } else {
+        setTimeout(function() {
+          overlay.classList.remove('active');
+          resolve();
+        }, 300);
+      }
+    }
+    nextStep();
+  });
+}
+
+async function divineOneYao() {
+  if (isAnimating || yaoResults.length >= 6) return;
+  isAnimating = true;
+
+  var btn = document.getElementById('btnDivine');
+  btn.disabled = true;
+
+  await showAnimation();
+
+  var yao = generateYaoByShiCao();
+  yaoResults.push(yao);
+
+  var mainLines = document.getElementById('mainLines');
+  mainLines.innerHTML = '';
+
+  var currentCode = null;
+  if (yaoResults.length === 6) {
+    currentCode = getGuaCode(yaoResults);
+  }
+
+  for (var i = yaoResults.length - 1; i >= 0; i--) {
+    renderYaoRow(mainLines, yaoResults[i], i, currentCode);
+  }
+
+  if (yaoResults.length < 6) {
+    document.getElementById('yaoNum').textContent = YAO_NUMS[yaoResults.length];
+  } else {
+    document.getElementById('yaoNum').textContent = '六';
+  }
+
+  if (yaoResults.length === 6) {
+    finishDivination();
+  }
+
+  btn.disabled = yaoResults.length >= 6;
+  isAnimating = false;
+}
+
+function finishDivination() {
+  var code = getGuaCode(yaoResults);
+  var name = getGuaName(code);
+  document.getElementById('mainName').textContent = name;
+
+  if (hasMovingYao(yaoResults)) {
+    var changedCode = getChangedGuaCode(yaoResults);
+    var changedName = getGuaName(changedCode);
+
+    document.getElementById('arrowCol').style.display = 'flex';
+    document.getElementById('changedPanel').style.display = 'block';
+
+    var changedLines = document.getElementById('changedLines');
+    changedLines.innerHTML = '';
+
+    var changedYaos = yaoResults.map(function(y) {
+      return {
+        isYang: y.isMoving ? !y.isYang : y.isYang,
+        isMoving: false,
+        value: y.isMoving ? (y.isYang ? 6 : 9) : y.value,
+        type: y.isMoving ? (y.isYang ? '少阴' : '少阳') : y.type
+      };
+    });
+
+    for (var i = 5; i >= 0; i--) {
+      renderYaoRow(changedLines, changedYaos[i], i, changedCode);
+    }
+
+    document.getElementById('changedName').textContent = changedName;
+  }
+
+  var detail = document.getElementById('resultDetail');
+  detail.classList.add('show');
+  var list = document.getElementById('resultYaoList');
+  list.innerHTML = '';
+
+  for (var i = 5; i >= 0; i--) {
+    var y = yaoResults[i];
+    var item = document.createElement('div');
+    item.className = 'ry-item';
+    var movingMark = '';
+    if (y.isMoving) {
+      movingMark = y.isYang ? ' ○' : ' ×';
+    }
+    var palaceInfo = getPalaceInfo(code);
+    var liuqinStr = '';
+    var zhiStr = '';
+    var shiYingStr = '';
+    if (palaceInfo) {
+      liuqinStr = '<span class="ry-liuqin ' + getLiuqinClass(getSixRelatives(palaceInfo.element, getLineElement(code, i))) + '">' + getSixRelatives(palaceInfo.element, getLineElement(code, i)) + '</span>';
+      zhiStr = '<span class="ry-zhi">' + getLineGan(code, i) + getLineZhi(code, i) + '</span>';
+      if (i === palaceInfo.shiPos) shiYingStr = '<span class="ry-shi">世</span>';
+      else if (i === palaceInfo.yingPos) shiYingStr = '<span class="ry-ying">应</span>';
+    }
+    item.innerHTML =
+      '<span class="ry-pos">' + YAO_NAMES[i] + '爻</span>' +
+      liuqinStr +
+      zhiStr +
+      '<span class="ry-type' + (y.isMoving ? ' moving' : '') + '">' + y.type + movingMark + '</span>' +
+      '<span class="ry-val">策数 ' + y.value + '</span>' +
+      shiYingStr;
+    list.appendChild(item);
+  }
+
+  var analysisSection = document.getElementById('analysisSection');
+  var analysisContent = document.getElementById('analysisContent');
+  analysisContent.innerHTML = generateAnalysis(code, yaoResults, selectedTopic);
+  setTimeout(function() {
+    analysisSection.classList.add('show');
+  }, 300);
+
+  saveToHistory(code, yaoResults, selectedTopic);
+}
+
+function resetAll() {
+  yaoResults = [];
+  isAnimating = false;
+  selectedTopic = '';
+
+  document.getElementById('mainLines').innerHTML = '';
+  document.getElementById('mainName').textContent = '';
+  document.getElementById('changedLines').innerHTML = '';
+  document.getElementById('changedName').textContent = '';
+  document.getElementById('arrowCol').style.display = 'none';
+  document.getElementById('changedPanel').style.display = 'none';
+  document.getElementById('yaoNum').textContent = '一';
+  document.getElementById('btnDivine').disabled = false;
+
+  var detail = document.getElementById('resultDetail');
+  detail.classList.remove('show');
+  document.getElementById('resultYaoList').innerHTML = '';
+
+  var analysisSection = document.getElementById('analysisSection');
+  analysisSection.classList.remove('show');
+  document.getElementById('analysisContent').innerHTML = '';
+
+  document.getElementById('topicSection').classList.remove('hidden');
+  document.getElementById('divinationArea').classList.add('hidden');
+  document.getElementById('topicValue').textContent = '';
+  document.getElementById('customTopic').value = '';
+  document.getElementById('btnConfirmTopic').disabled = true;
+
+  var tags = document.querySelectorAll('.topic-tag');
+  for (var i = 0; i < tags.length; i++) {
+    tags[i].classList.remove('selected');
+  }
+}
+
+var HISTORY_KEY = 'zhanbu_history';
+
+function getHistory() {
+  try {
+    var data = localStorage.getItem(HISTORY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveHistory(list) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+function saveToHistory(code, yaos, topic) {
+  var history = getHistory();
+  var changedCode = getChangedGuaCode(yaos);
+  var hasMoving = hasMovingYao(yaos);
+  var yaoSummary = [];
+  for (var i = 0; i < yaos.length; i++) {
+    var y = yaos[i];
+    yaoSummary.push({
+      isYang: y.isYang,
+      isMoving: y.isMoving,
+      type: y.type,
+      value: y.value
+    });
+  }
+
+  var now = new Date();
+  var timeStr = now.getFullYear() + '/' +
+    String(now.getMonth() + 1).padStart(2, '0') + '/' +
+    String(now.getDate()).padStart(2, '0') + ' ' +
+    String(now.getHours()).padStart(2, '0') + ':' +
+    String(now.getMinutes()).padStart(2, '0');
+
+  var record = {
+    id: Date.now(),
+    time: timeStr,
+    topic: topic || '未指定',
+    code: code,
+    name: getGuaName(code),
+    changedCode: hasMoving ? changedCode : '',
+    changedName: hasMoving ? getGuaName(changedCode) : '',
+    hasMoving: hasMoving,
+    yaos: yaoSummary,
+    analysis: generateAnalysis(code, yaos, topic)
+  };
+
+  history.unshift(record);
+  if (history.length > 50) history = history.slice(0, 50);
+  saveHistory(history);
+  renderHistory();
+}
+
+function renderHistory() {
+  var history = getHistory();
+  var list = document.getElementById('historyList');
+  var empty = document.getElementById('historyEmpty');
+  var actions = document.getElementById('historyActions');
+
+  if (history.length === 0) {
+    list.innerHTML = '<div class="history-empty">尚无占卜记录</div>';
+    actions.style.display = 'none';
+    return;
+  }
+
+  actions.style.display = 'block';
+  var html = '';
+
+  for (var i = 0; i < history.length; i++) {
+    var r = history[i];
+    var yaoStr = '';
+    for (var j = 0; j < r.yaos.length; j++) {
+      var y = r.yaos[j];
+      if (y.isMoving) {
+        yaoStr += '<span class="hi-moving">' + y.type + (y.isYang ? '○' : '×') + '</span> ';
+      } else {
+        yaoStr += y.type + ' ';
+      }
+    }
+
+    html += '<div class="history-item" onclick="showHistoryDetail(' + i + ')">';
+    html += '<div class="hi-header">';
+    html += '<span class="hi-gua">' + r.name;
+    if (r.hasMoving) {
+      html += ' <span class="hi-changed">→ ' + r.changedName + '</span>';
+    }
+    html += '</span>';
+    html += '<span class="hi-time">' + r.time + '</span>';
+    html += '</div>';
+    html += '<div class="hi-topic">问：<span class="hi-topic-val">' + r.topic + '</span></div>';
+    html += '<div class="hi-yaos">' + yaoStr + '</div>';
+    html += '</div>';
+  }
+
+  list.innerHTML = html;
+}
+
+function toggleHistory() {
+  var list = document.getElementById('historyList');
+  var icon = document.getElementById('historyToggle');
+  list.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+}
+
+function clearHistory() {
+  if (!confirm('确定要清除全部占卜记录吗？')) return;
+  saveHistory([]);
+  renderHistory();
+}
+
+function showHistoryDetail(index) {
+  var history = getHistory();
+  if (index < 0 || index >= history.length) return;
+  var r = history[index];
+
+  var card = document.getElementById('historyDetailCard');
+  var html = '<button class="hdc-close" onclick="closeHistoryDetail()">✕</button>';
+
+  html += '<div style="text-align:center;margin-bottom:16px;">';
+  html += '<div style="font-size:1.3em;color:#e8d0a0;font-weight:700;letter-spacing:0.1em;">' + r.name + '</div>';
+  if (r.hasMoving) {
+    html += '<div style="font-size:0.85em;color:#d08040;margin-top:4px;">变卦：' + r.changedName + '</div>';
+  }
+  html += '<div style="font-size:0.7em;color:#5a4a30;margin-top:6px;">' + r.time + ' · 问：' + r.topic + '</div>';
+  html += '</div>';
+
+  html += '<div style="display:flex;justify-content:center;gap:20px;margin-bottom:16px;">';
+  html += renderMiniGua(r.code, '本卦');
+  if (r.hasMoving) {
+    html += '<div style="display:flex;align-items:center;color:#6a5a30;font-size:1.2em;">→</div>';
+    html += renderMiniGua(r.changedCode, '变卦');
+  }
+  html += '</div>';
+
+  html += r.analysis;
+
+  card.innerHTML = html;
+  document.getElementById('historyDetailOverlay').classList.add('show');
+}
+
+function renderMiniGua(code, label) {
+  var html = '<div style="text-align:center;">';
+  html += '<div style="font-size:0.65em;color:#6a5a30;margin-bottom:4px;">' + label + '</div>';
+  for (var i = 5; i >= 0; i--) {
+    var isYang = code[i] === '1';
+    if (isYang) {
+      html += '<div style="width:36px;height:4px;background:#c8a860;margin:3px auto;border-radius:1px;"></div>';
+    } else {
+      html += '<div style="display:flex;justify-content:center;gap:6px;margin:3px auto;">';
+      html += '<div style="width:14px;height:4px;background:#8a7050;border-radius:1px;"></div>';
+      html += '<div style="width:14px;height:4px;background:#8a7050;border-radius:1px;"></div>';
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+function closeHistoryDetail(event) {
+  if (event && event.target !== document.getElementById('historyDetailOverlay')) return;
+  document.getElementById('historyDetailOverlay').classList.remove('show');
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>
